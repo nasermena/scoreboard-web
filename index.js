@@ -190,7 +190,7 @@
         tr.className = (idx%2 ? "odd":"even");
         tr.innerHTML = `
           <td class="p-2 border text-right">${p.name}</td>
-          <td class="p-2 border text-center"><input type="number" class="border rounded-xl p-2 w-24 text-center" id="ri-score-${idx}" value="0"/></td>
+          <td class="p-2 border text-center"><input type="number" class="border rounded-xl p-2 w-24 text-center" id="ri-score-${idx}" value="0" inputmode="numeric"  pattern="[0-9]*"/></td>
         `;
         tbody.appendChild(tr);
       });
