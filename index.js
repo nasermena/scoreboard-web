@@ -69,6 +69,46 @@
       });
     }
 
+    // مراجع الحقول
+    const playersInput = document.getElementById("setup-players");
+    const roundsInput  = document.getElementById("setup-rounds");
+    const setupBtn     = document.getElementById("setup-continue");
+
+    // دالة تحقّق رقم صحيح ضمن مدى
+    function isIntInRange(raw, min, max){
+      if (raw === "" || raw === null || raw === undefined) return false;
+      const n = parseInt(raw, 10);
+      return Number.isInteger(n) && n >= min && n <= max;
+    }
+
+    // تحديث حالة زر المتابعة
+    function updateSetupContinue(){
+      const okPlayers = isIntInRange(playersInput.value, 2, 6);
+      const okRounds  = isIntInRange(roundsInput.value, 1, 5);
+      const ok = okPlayers && okRounds;
+
+      setupBtn.disabled = !ok;
+      setupBtn.classList.toggle("opacity-50", !ok);
+      setupBtn.classList.toggle("cursor-not-allowed", !ok);
+    }
+
+    // استماع لتغيّر الإدخال
+    playersInput.addEventListener("input", updateSetupContinue);
+    roundsInput.addEventListener("input", updateSetupContinue);
+
+    // استدعاء أولي
+    updateSetupContinue();
+
+    document.getElementById("setup-continue").addEventListener("click", () => {
+      const nPlayers = parseInt(playersInput.value, 10);
+      const nRounds  = parseInt(roundsInput.value, 10);
+
+      if (!isIntInRange(playersInput.value, 2, 6) || !isIntInRange(roundsInput.value, 1, 5)) {
+        alert("أدخل أعداداً صحيحة: عدد اللاعبين بين 2 و6، وعدد الجولات بين 1 و5.");
+        return;
+      }
+    });
+
     // ======= UI Bindings =======
 
     // Setup
