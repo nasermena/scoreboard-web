@@ -7,6 +7,11 @@
   <!-- Tailwind via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+
+  @media (max-width: 420px){
+    th, td { padding: 6px !important; }
+  }
+
     :root{
       --leader:#E6F4EA; /* أخضر فاتح */
       --last:#FDECEA;   /* أحمر فاتح */
@@ -64,10 +69,10 @@
       <div class="bg-white rounded-2xl shadow p-4 sm:p-6">
         <h3 class="text-lg font-semibold mb-3">نقاط كل جولة لكل لاعب</h3>
         <div class="overflow-auto">
-          <table class="w-full min-w-[640px] border-collapse">
+          <table class="w-full border-collapse table-fixed text-xs sm:text-sm">
             <thead>
               <tr id="rounds-head-row" class="bg-gray-100 text-sm">
-                <th class="p-2 border">الجولة/اللاعب</th>
+                <th class="border px-2 py-2 sm:px-3 sm:py-2">الجولة/اللاعب</th>
               </tr>
             </thead>
             <tbody id="rounds-body"></tbody>
@@ -78,12 +83,12 @@
       <div class="bg-white rounded-2xl shadow p-4 sm:p-6">
         <h3 class="text-lg font-semibold mb-3">الترتيب الحالي (الأقل نقاطاً أولاً)</h3>
         <div class="overflow-auto">
-          <table class="w-full min-w-[480px] border-collapse">
+          <table class="w-full border-collapse table-fixed text-xs sm:text-sm">
             <thead>
               <tr class="bg-gray-100 text-sm">
-                <th class="p-2 border">الترتيب</th>
-                <th class="p-2 border">اسم اللاعب</th>
-                <th class="p-2 border">النقاط</th>
+                <th class="border px-2 py-2 sm:px-3 sm:py-2">الترتيب</th>
+                <th class="border px-2 py-2 sm:px-3 sm:py-2">اسم اللاعب</th>
+                <th class="border px-2 py-2 sm:px-3 sm:py-2">النقاط</th>
               </tr>
             </thead>
             <tbody id="rank-body"></tbody>
@@ -103,11 +108,11 @@
         الجولة رقم <span id="ri-round"></span> من <span id="ri-rounds"></span> | القيم رقم <span id="ri-game"></span>
       </div>
       <form id="round-input-form" class="overflow-auto">
-        <table class="w-full min-w-[480px] border-collapse">
+        <table class="w-full border-collapse table-fixed text-xs sm:text-sm">
           <thead>
             <tr class="bg-gray-100 text-sm">
-              <th class="p-2 border">اسم اللاعب</th>
-              <th class="p-2 border">نقاط هذه الجولة</th>
+              <th class="border px-2 py-2 sm:px-3 sm:py-2">اسم اللاعب</th>
+              <th class="border px-2 py-2 sm:px-3 sm:py-2">نقاط هذه الجولة</th>
             </tr>
           </thead>
           <tbody id="round-input-body"></tbody>
@@ -130,8 +135,8 @@
           <table class="w-full min-w-[480px] border-collapse">
             <thead>
               <tr class="bg-gray-100 text-sm">
-                <th class="p-2 border">اسم اللاعب</th>
-                <th class="p-2 border">النقاط</th>
+                <th class="border px-2 py-2 sm:px-3 sm:py-2">اسم اللاعب</th>
+                <th class="border px-2 py-2 sm:px-3 sm:py-2">النقاط</th>
               </tr>
             </thead>
             <tbody id="eg-rank-body"></tbody>
@@ -183,9 +188,9 @@
           <table class="w-full min-w-[640px] border-collapse">
             <thead>
               <tr class="bg-gray-100 text-sm">
-                <th class="p-2 border">اسم اللاعب</th>
-                <th class="p-2 border">عدد القيمات الفائزة</th>
-                <th class="p-2 border">عدد القيمات الملعوبة</th>
+                <th class="border px-2 py-2 sm:px-3 sm:py-2">اسم اللاعب</th>
+                <th class="border px-2 py-2 sm:px-3 sm:py-2">عدد القيمات الفائزة</th>
+                <th class="border px-2 py-2 sm:px-3 sm:py-2">عدد القيمات الملعوبة</th>
               </tr>
             </thead>
             <tbody id="sum-wins-body"></tbody>
@@ -199,9 +204,9 @@
           <table class="w-full min-w-[640px] border-collapse">
             <thead>
               <tr class="bg-gray-100 text-sm">
-                <th class="p-2 border">اسم اللاعب</th>
-                <th class="p-2 border">مجموع النقاط الكلي</th>
-                <th class="p-2 border">عدد القيمات الملعوبة</th>
+                <th class="border px-2 py-2 sm:px-3 sm:py-2">اسم اللاعب</th>
+                <th class="border px-2 py-2 sm:px-3 sm:py-2">مجموع النقاط الكلي</th>
+                <th class="border px-2 py-2 sm:px-3 sm:py-2">عدد القيمات الملعوبة</th>
               </tr>
             </thead>
             <tbody id="sum-points-body"></tbody>
