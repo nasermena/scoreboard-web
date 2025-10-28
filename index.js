@@ -75,7 +75,8 @@
     $("#setup-continue").addEventListener("click", () => {
       const nPlayers = parseInt($("#setup-players").value,10);
       const nRounds  = parseInt($("#setup-rounds").value,10);
-      if (!nPlayers || nPlayers<1 || !nRounds || nRounds<1) return alert("أدخل أعداداً صحيحة موجبة.");
+      if (nPlayers < 2 || nPlayers > 6) return alert("عدد اللاعبين يجب أن يكون بين 2 و6.");
+      if (nRounds < 1 || nRounds > 5) return alert("عدد الجولات يجب أن يكون بين 1 و5.");
 
       // Build names form
       $("#names-form").innerHTML = "";
