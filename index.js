@@ -121,15 +121,18 @@
     function renderScoreboard(){
       $("#game-index").textContent = S.gameIndex;
 
-      // header players in rounds table
-      const headSpan = $("#rounds-head-players");
-      headSpan.innerHTML = "";
-      S.players.forEach(p=>{
-        const th = document.createElement("th");
-        th.className = "p-2 border";
-        th.textContent = p.name;
-        headSpan.appendChild(th);
-      });
+    // header players in rounds table
+    const headRow = document.getElementById("rounds-head-row");
+    // امسح أي أعمدة لاعبين قديمة (اترك أول th كما هو)
+    while (headRow.children.length > 1) headRow.removeChild(headRow.lastElementChild);
+
+    // أضف th لكل لاعب داخل نفس الصف
+    S.players.forEach(p => {
+      const th = document.createElement("th");
+      th.className = "p-2 border";
+      th.textContent = p.name;
+      headRow.appendChild(th);
+    });
 
       // body rounds
       const rb = $("#rounds-body");
