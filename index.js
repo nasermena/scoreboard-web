@@ -360,6 +360,15 @@
     startRoundsFlow();
   });
 
+  // إلغاء تعديل عدد اللاعبين والرجوع لسؤال "بدء قيم جديد؟"
+  document.getElementById("eg-p-cancel").addEventListener("click", ()=>{
+    // أخفِ تدفّق تعديل اللاعبين وامسح حالته
+    document.getElementById("eg-players-flow").classList.add("hidden");
+    resetPlayersFlowUI();          // دالة لديك مسبقًا تُخفي/تصفّر عناصر الإضافة/الإزالة
+    // أظهر السؤال الأساسي من جديد
+    document.getElementById("eg-primary").classList.remove("hidden");
+  });
+
   // إضافة لاعبين
   $("#eg-p-add").addEventListener("click", ()=>{
     $("#eg-p-add-wrap").classList.remove("hidden");
