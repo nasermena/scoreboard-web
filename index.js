@@ -297,17 +297,22 @@
     colorizeRows(body);
 
     // reset flows
-    $("#eg-primary").classList.remove("hidden");
-    $("#eg-players-flow").classList.add("hidden");
-    $("#eg-rounds-flow").classList.add("hidden");
+    document.getElementById("eg-primary-card").classList.remove("hidden");
+    document.getElementById("eg-primary-card").style.display = ""; // تأكد من ظهوره
+    document.getElementById("eg-players-flow").classList.add("hidden");
+    document.getElementById("eg-rounds-flow").classList.add("hidden");
     resetPlayersFlowUI();
     resetRoundsFlowUI();
   }
 
   // افتح “هل تريد بدء قيم جديد؟” → نعم
-  $("#eg-yes").addEventListener("click", ()=>{
-    $("#eg-primary").classList.add("hidden");
-    startPlayersFlow();
+  document.getElementById("eg-yes").addEventListener("click", (e)=>{
+    e.preventDefault();
+    const card = document.getElementById("eg-primary-card");
+    card.classList.add("hidden");
+    card.style.display = "none";            // إخفاء مؤكد
+
+    document.getElementById("eg-players-flow").classList.remove("hidden");
   });
 
   $("#eg-no-summary").addEventListener("click", ()=>{
@@ -360,13 +365,14 @@
     startRoundsFlow();
   });
 
-  // إلغاء تعديل عدد اللاعبين والرجوع لسؤال "بدء قيم جديد؟"
+
   document.getElementById("eg-p-cancel").addEventListener("click", ()=>{
-    // أخفِ تدفّق تعديل اللاعبين وامسح حالته
     document.getElementById("eg-players-flow").classList.add("hidden");
-    resetPlayersFlowUI();          // دالة لديك مسبقًا تُخفي/تصفّر عناصر الإضافة/الإزالة
-    // أظهر السؤال الأساسي من جديد
-    document.getElementById("eg-primary").classList.remove("hidden");
+    resetPlayersFlowUI();
+
+    const card = document.getElementById("eg-primary-card");
+    card.style.display = "";                 // إزالة inline style
+    card.classList.remove("hidden");
   });
 
   // إضافة لاعبين
