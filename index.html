@@ -125,118 +125,107 @@
     </section>
 
     <!-- ========= End Game Page ========= -->
-    <section id="page-end-game" class="hidden space-y-4">
-      <div class="bg-white rounded-2xl shadow p-4 sm:p-6">
-        <h2 class="text-2xl font-bold">انتهاء القيم #<span id="eg-index"></span></h2>
+<section id="page-end-game" class="hidden space-y-4">
+  <!-- بطاقة: انتهاء القيم + جدول الترتيب -->
+  <div class="bg-white rounded-2xl shadow p-4 sm:p-6">
+    <h2 class="text-2xl font-bold">انتهاء القيم #<span id="eg-index"></span></h2>
+  </div>
+  <div class="bg-white rounded-2xl shadow p-4 sm:p-6">
+    <h3 class="text-lg font-semibold mb-3">الترتيب (الأقل → الأكثر)</h3>
+    <div class="overflow-auto">
+      <table class="w-full border-collapse table-fixed text-xs sm:text-sm">
+        <thead>
+          <tr class="bg-gray-100 text-xs sm:text-sm">
+            <th class="border px-2 py-2 sm:px-3 sm:py-2">اسم اللاعب</th>
+            <th class="border px-2 py-2 sm:px-3 sm:py-2">النقاط</th>
+          </tr>
+        </thead>
+        <tbody id="eg-rank-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- بطاقة: السؤال الأساسي -->
+  <div id="eg-primary-card" class="bg-white rounded-2xl shadow p-4 sm:p-6">
+    <h3 class="text-lg font-semibold mb-3">هل تريد بدء قيم جديد؟</h3>
+    <div id="eg-primary" class="flex gap-3 flex-wrap">
+      <button id="eg-yes" class="px-4 py-2 rounded-xl bg-green-600 text-white">نعم</button>
+      <button id="eg-no-summary" class="px-4 py-2 rounded-xl bg-red-600 text-white">لا، اعرض الملخص</button>
+    </div>
+  </div>
+
+  <!-- بطاقة: تغيير عدد اللاعبين (خارج بطاقة السؤال الأساسي) -->
+  <div id="eg-players-flow" class="hidden bg-white rounded-2xl shadow p-4 sm:p-6 space-y-3">
+    <h3 class="text-lg font-semibold">هل تريد تغيير عدد اللاعبين؟</h3>
+    <div class="flex gap-3 flex-wrap">
+      <button id="eg-p-yes" class="px-4 py-2 rounded-xl bg-green-600 text-white">نعم</button>
+      <button id="eg-p-no"  class="px-4 py-2 rounded-xl border">لا</button>
+      <button id="eg-p-cancel" class="px-4 py-2 rounded-xl bg-gray-600 text-white">إلغاء</button>
+    </div>
+
+    <div id="eg-p-controls" class="hidden space-y-3">
+      <div id="eg-p-status" class="text-sm text-gray-700"></div>
+      <div class="flex gap-3 flex-wrap">
+        <button id="eg-p-add" class="px-4 py-2 rounded-xl bg-green-600 text-white hidden">إضافة</button>
+        <button id="eg-p-remove" class="px-4 py-2 rounded-xl bg-red-600 text-white hidden">إزالة</button>
       </div>
 
-      <div class="bg-white rounded-2xl shadow p-4 sm:p-6">
-        <h3 class="text-lg font-semibold mb-3">الترتيب (الأقل → الأكثر)</h3>
-        <div class="overflow-auto">
-          <table class="w-full border-collapse table-fixed text-xs sm:text-sm">
-            <thead>
-              <tr class="bg-gray-100 text-xs sm:text-sm">
-                <th class="border px-2 py-2 sm:px-3 sm:py-2">اسم اللاعب</th>
-                <th class="border px-2 py-2 sm:px-3 sm:py-2">النقاط</th>
-              </tr>
-            </thead>
-            <tbody id="eg-rank-body"></tbody>
-          </table>
-        </div>
-      </div>
+      <div id="eg-p-add-wrap" class="hidden space-y-2">
+        <label class="block text-sm">كم لاعب تريد إضافته؟ <span id="eg-p-add-hint" class="text-gray-500"></span></label>
+        <input id="eg-p-add-count" type="number" inputmode="numeric" pattern="[0-9]*" class="border rounded-xl p-2 w-32 text-center" min="1" />
+        <button id="eg-p-add-continue" class="px-4 py-2 rounded-xl bg-green-600 text-white">متابعة</button>
 
-      <!-- السؤال الأساسي -->
-      <div id="eg-primary-card" class="bg-white rounded-2xl shadow p-4 sm:p-6">
-        <h3 class="text-lg font-semibold mb-3">هل تريد بدء قيم جديد؟</h3>
-        <div id="eg-primary" class="flex gap-3 flex-wrap">
-          <button id="eg-yes" class="px-4 py-2 rounded-xl bg-green-600 text-white">نعم</button>
-          <button id="eg-no-summary" class="px-4 py-2 rounded-xl bg-red-600 text-white">لا، اعرض الملخص</button>
-        </div>
-      </div>
-
-      <!-- خطوة تغيير عدد اللاعبين -->
-      <div id="eg-players-flow" class="hidden bg-white rounded-2xl shadow p-4 sm:p-6 space-y-3">
-        <h3 class="text-lg font-semibold">هل تريد تغيير عدد اللاعبين؟</h3>
-        <div class="flex gap-3 flex-wrap">
-          <button id="eg-p-yes" class="px-4 py-2 rounded-xl bg-green-600 text-white">نعم</button>
-          <button id="eg-p-no" class="px-4 py-2 rounded-xl border">لا</button>
-          <button id="eg-p-cancel" class="px-4 py-2 rounded-xl bg-gray-600 text-white">إلغاء</button>
-
-        </div>
-
-        <!-- عناصر التحكم عند اختيار نعم -->
-        <div id="eg-p-controls" class="hidden space-y-3">
-          <div id="eg-p-status" class="text-sm text-gray-700"></div>
-          <div class="flex gap-3 flex-wrap">
-            <button id="eg-p-add" class="px-4 py-2 rounded-xl bg-green-600 text-white hidden">إضافة</button>
-            <button id="eg-p-remove" class="px-4 py-2 rounded-xl bg-red-600 text-white hidden">إزالة</button>
-          </div>
-
-          <!-- إضافة لاعبين -->
-          <div id="eg-p-add-wrap" class="hidden space-y-2">
-            <label class="block text-sm">كم لاعب تريد إضافته؟ <span id="eg-p-add-hint" class="text-gray-500"></span></label>
-            <input id="eg-p-add-count" type="number" inputmode="numeric" pattern="[0-9]*"
-                  class="border rounded-xl p-2 w-32 text-center" min="0" />
-            <button id="eg-p-add-continue" class="px-4 py-2 rounded-xl bg-green-600 text-white">متابعة</button>
-
-            <form id="eg-p-add-names-form" class="hidden mt-3 space-y-2"></form>
-            <div id="eg-p-add-names-actions" class="hidden mt-2 flex gap-3">
-              <button id="eg-p-add-names-submit" type="button" class="px-4 py-2 rounded-xl bg-green-600 text-white">إضافة</button>
-              <button id="eg-p-add-names-cancel" type="button" class="px-4 py-2 rounded-xl border">إلغاء</button>
-            </div>
-          </div>
-
-          <!-- إزالة لاعبين -->
-          <div id="eg-p-remove-wrap" class="hidden space-y-2">
-            <div class="text-sm text-gray-600">اختر اللاعبين المراد إزالتهم (يجب أن يبقى على الأقل لاعبان).</div>
-            <form id="eg-p-remove-form" class="space-y-1"></form>
-            <button id="eg-p-remove-save" class="px-4 py-2 rounded-xl bg-red-600 text-white">حفظ</button>
-          </div>
+        <form id="eg-p-add-names-form" class="hidden mt-3 space-y-2"></form>
+        <div id="eg-p-add-names-actions" class="hidden mt-2 flex gap-3">
+          <button id="eg-p-add-names-submit" type="button" class="px-4 py-2 rounded-xl bg-green-600 text-white">إضافة والبدء</button>
+          <button id="eg-p-add-names-cancel" type="button" class="px-4 py-2 rounded-xl border">إلغاء</button>
         </div>
       </div>
 
-      <!-- خطوة تغيير عدد الجولات -->
-      <div id="eg-rounds-flow" class="hidden bg-white rounded-2xl shadow p-4 sm:p-6 space-y-3">
-        <h3 class="text-lg font-semibold">هل تريد تغيير عدد الجولات؟</h3>
-        <div class="flex gap-3 flex-wrap">
-          <button id="eg-r-yes" class="px-4 py-2 rounded-xl bg-green-600 text-white">نعم</button>
-          <button id="eg-r-no" class="px-4 py-2 rounded-xl border">لا</button>
-        </div>
-
-        <!-- عناصر التحكم عند اختيار نعم -->
-        <div id="eg-r-controls" class="hidden space-y-3">
-          <div id="eg-r-status" class="text-sm text-gray-700"></div>
-          <div class="flex gap-3 flex-wrap">
-            <button id="eg-r-add" class="px-4 py-2 rounded-xl bg-green-600 text-white hidden">إضافة</button>
-            <button id="eg-r-remove" class="px-4 py-2 rounded-xl bg-red-600 text-white hidden">إزالة</button>
-          </div>
-
-          <!-- تعيين عدد الجولات الجديد (إضافة) -->
-          <div id="eg-r-add-wrap" class="hidden space-y-2">
-            <label class="block text-sm">كم تريد عدد الجولات الجديد؟
-              <span id="eg-r-add-hint" class="text-gray-500"></span>
-            </label>
-            <input id="eg-r-add-new" type="number" inputmode="numeric" pattern="[0-9]*"
-                  class="border rounded-xl p-2 w-32 text-center" />
-            <button id="eg-r-add-save" class="px-4 py-2 rounded-xl bg-green-600 text-white">حفظ</button>
-          </div>
-
-          <!-- تعيين عدد الجولات الجديد (إزالة) -->
-          <div id="eg-r-remove-wrap" class="hidden space-y-2">
-            <label class="block text-sm">كم تريد عدد الجولات الجديد؟
-              <span id="eg-r-remove-hint" class="text-gray-500"></span>
-            </label>
-            <input id="eg-r-remove-new" type="number" inputmode="numeric" pattern="[0-9]*"
-                  class="border rounded-xl p-2 w-32 text-center" />
-            <button id="eg-r-remove-save" class="px-4 py-2 rounded-xl bg-red-600 text-white">حفظ</button>
-          </div>
-        </div>
-
-        <div class="pt-2">
-          <button id="eg-start-new" class="px-4 py-2 rounded-xl bg-indigo-600 text-white hidden">بدء القيم</button>
-        </div>
+      <div id="eg-p-remove-wrap" class="hidden space-y-2">
+        <div class="text-sm text-gray-600">اختر اللاعبين المراد إزالتهم (يجب أن يبقى على الأقل لاعبان).</div>
+        <form id="eg-p-remove-form" class="space-y-1"></form>
+        <button id="eg-p-remove-save" class="px-4 py-2 rounded-xl bg-red-600 text-white">حفظ</button>
       </div>
-    </section>
+    </div>
+  </div>
+
+  <!-- بطاقة: تغيير عدد الجولات (خارج بطاقة السؤال الأساسي) -->
+  <div id="eg-rounds-flow" class="hidden bg-white rounded-2xl shadow p-4 sm:p-6 space-y-3">
+    <h3 class="text-lg font-semibold">هل تريد تغيير عدد الجولات؟</h3>
+    <div class="flex gap-3 flex-wrap">
+      <button id="eg-r-yes" class="px-4 py-2 rounded-xl bg-green-600 text-white">نعم</button>
+      <button id="eg-r-no"  class="px-4 py-2 rounded-xl border">لا</button>
+      <button id="eg-p-cancel" class="px-4 py-2 rounded-xl bg-gray-600 text-white">إلغاء</button>
+
+    </div>
+
+    <div id="eg-r-controls" class="hidden space-y-3">
+      <div id="eg-r-status" class="text-sm text-gray-700"></div>
+      <div class="flex gap-3 flex-wrap">
+        <button id="eg-r-add" class="px-4 py-2 rounded-xl bg-green-600 text-white hidden">إضافة</button>
+        <button id="eg-r-remove" class="px-4 py-2 rounded-xl bg-red-600 text-white hidden">إزالة</button>
+      </div>
+
+      <div id="eg-r-add-wrap" class="hidden space-y-2">
+        <label class="block text-sm">كم تريد عدد الجولات الجديد؟ <span id="eg-r-add-hint" class="text-gray-500"></span></label>
+        <input id="eg-r-add-new" type="number" inputmode="numeric" pattern="[0-9]*" class="border rounded-xl p-2 w-32 text-center" />
+        <button id="eg-r-add-save" class="px-4 py-2 rounded-xl bg-green-600 text-white">حفظ</button>
+      </div>
+
+      <div id="eg-r-remove-wrap" class="hidden space-y-2">
+        <label class="block text-sm">كم تريد عدد الجولات الجديد؟ <span id="eg-r-remove-hint" class="text-gray-500"></span></label>
+        <input id="eg-r-remove-new" type="number" inputmode="numeric" pattern="[0-9]*" class="border rounded-xl p-2 w-32 text-center" />
+        <button id="eg-r-remove-save" class="px-4 py-2 rounded-xl bg-red-600 text-white">حفظ</button>
+      </div>
+    </div>
+
+    <div class="pt-2">
+      <button id="eg-start-new" class="px-4 py-2 rounded-xl bg-indigo-600 text-white hidden">بدء القيم</button>
+    </div>
+  </div>
+</section>
+
 
     <!-- ========= Summary Page ========= -->
     <section id="page-summary" class="hidden space-y-4">

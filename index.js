@@ -281,39 +281,59 @@
     });
 
   // ===== End game rendering =====
-  function renderEndGame(){
-    $("#eg-index").textContent = S.gameIndex;
-    const body = $("#eg-rank-body");
-    body.innerHTML = "";
-    const sorted = sortPointsAsc(playersMap());
-    sorted.forEach(([name,pts],i)=>{
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td class="border px-2 py-2 sm:px-3 sm:py-2 text-right">${name}</td>
-        <td class="border px-2 py-2 sm:px-3 sm:py-2 text-center">${pts}</td>
-      `;
-      body.appendChild(tr);
-    });
-    colorizeRows(body);
+function renderEndGame(){
+  // تحديث رقم القيم وعرض ترتيب النهاية (الأقل → الأكثر)
+  document.getElementById("eg-index").textContent = S.gameIndex;
+  const body = document.getElementById("eg-rank-body");
+  body.innerHTML = "";
+  const sorted = sortPointsAsc(playersMap());
+  sorted.forEach(([name, pts]) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="border px-2 py-2 sm:px-3 sm:py-2 text-right">${name}</td>
+      <td class="border px-2 py-2 sm:px-3 sm:py-2 text-center">${pts}</td>
+    `;
+    body.appendChild(tr);
+  });
+  colorizeRows(body);
 
-    // reset flows
-    document.getElementById("eg-primary-card").classList.remove("hidden");
-    document.getElementById("eg-primary-card").style.display = ""; // تأكد من ظهوره
-    document.getElementById("eg-players-flow").classList.add("hidden");
-    document.getElementById("eg-rounds-flow").classList.add("hidden");
-    resetPlayersFlowUI();
-    resetRoundsFlowUI();
-  }
+  // إعادة ضبط العرض: أظهر بطاقة "بدء قيم جديد؟" وأخفِ بطاقتي اللاعبين والجولات
+  const primaryCard = document.getElementById("eg-primary-card");
+  primaryCard.classList.remove("hidden");
+  primaryCard.style.display = "";
+
+  const playersFlow = document.getElementById("eg-players-flow");
+  playersFlow.classList.add("hidden");
+  playersFlow.style.display = "none";
+
+  const roundsFlow = document.getElementById("eg-rounds-flow");
+  roundsFlow.classList.add("hidden");
+  roundsFlow.style.display = "none";
+
+  // تصفير واجهات التحكم الداخلية
+  resetPlayersFlowUI();
+  resetRoundsFlowUI();
+}
+
 
   // افتح “هل تريد بدء قيم جديد؟” → نعم
-  document.getElementById("eg-yes").addEventListener("click", (e)=>{
-    e.preventDefault();
-    const card = document.getElementById("eg-primary-card");
-    card.classList.add("hidden");
-    card.style.display = "none";            // إخفاء مؤكد
+document.getElementById("eg-yes").addEventListener("click", (e)=>{
+  e.preventDefault();
+  const primary = document.getElementById("eg-primary-card");
+  const pflow   = document.getElementById("eg-players-flow");
+  const rflow   = document.getElementById("eg-rounds-flow");
 
-    document.getElementById("eg-players-flow").classList.remove("hidden");
-  });
+  if (primary){ primary.classList.add("hidden"); primary.style.display = "none"; }
+  if (rflow){   rflow.classList.add("hidden");   rflow.style.display   = "none"; }
+
+  if (pflow){
+    pflow.classList.remove("hidden");
+    pflow.style.display = "";
+    pflow.scrollIntoView({behavior:"smooth", block:"start"});
+  }
+});
+
+
 
   $("#eg-no-summary").addEventListener("click", ()=>{
     renderSummary();
@@ -331,7 +351,14 @@
   }
 
   function startPlayersFlow(){
-    $("#eg-players-flow").classList.remove("hidden");
+    const primary = document.getElementById("eg-primary-card");
+    if (primary){
+      primary.classList.add("hidden");
+      primary.style.display = "none";
+    }
+    const pflow = document.getElementById("eg-players-flow");
+    pflow.classList.remove("hidden");
+    pflow.style.display = ""; // إزالة أي إخفاء سابق inline
   }
 
   // سؤال: هل تريد تغيير عدد اللاعبين؟
@@ -360,14 +387,37 @@
     $("#eg-p-remove").classList.toggle("hidden", !canRemove);
   });
 
-  $("#eg-p-no").addEventListener("click", ()=>{
-    // تخطّي تعديل اللاعبين → انتقل لخطوة الجولات
+  document.getElementById("eg-p-no").addEventListener("click", ()=>{
+    // أخفِ بطاقة البداية بالكامل
+    const primary = document.getElementById("eg-primary-card");
+    if (primary){
+      primary.classList.add("hidden");
+      primary.style.display = "none";
+    }
+
+    // أخفِ بطاقة تغيير عدد اللاعبين بالكامل
+    const pflow = document.getElementById("eg-players-flow");
+    if (pflow){
+      pflow.classList.add("hidden");
+      pflow.style.display = "none";
+    }
+
+    // أظهر بطاقة تغيير عدد الجولات فقط
     startRoundsFlow();
   });
 
 
   document.getElementById("eg-p-cancel").addEventListener("click", ()=>{
     document.getElementById("eg-players-flow").classList.add("hidden");
+    resetPlayersFlowUI();
+
+    const card = document.getElementById("eg-primary-card");
+    card.style.display = "";                 // إزالة inline style
+    card.classList.remove("hidden");
+  });
+
+    document.getElementById("eg-p-cancel").addEventListener("click", ()=>{
+    document.getElementById("eg-rounds-flow").classList.add("hidden");
     resetPlayersFlowUI();
 
     const card = document.getElementById("eg-primary-card");
@@ -490,7 +540,9 @@
   }
 
   function startRoundsFlow(){
-    $("#eg-rounds-flow").classList.remove("hidden");
+    const rflow = document.getElementById("eg-rounds-flow");
+    rflow.classList.remove("hidden");
+    rflow.style.display = ""; // تأكيد إظهار البطاقة
   }
 
   $("#eg-r-yes").addEventListener("click", ()=>{
