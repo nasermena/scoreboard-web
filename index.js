@@ -545,6 +545,19 @@ document.getElementById("eg-yes").addEventListener("click", (e)=>{
     rflow.style.display = ""; // تأكيد إظهار البطاقة
   }
 
+ document.getElementById("eg-r-cancel").addEventListener("click", ()=>{
+  // أخفِ بطاقة تغيير الجولات
+  const rflow = document.getElementById("eg-rounds-flow");
+  rflow.classList.add("hidden");
+  rflow.style.display = "none";
+  resetRoundsFlowUI(); // تنظيف واجهة عناصر الجولات
+
+  // أعد إظهار بطاقة "بدء قيم جديد؟"
+  const primary = document.getElementById("eg-primary-card");
+  primary.style.display = "";
+  primary.classList.remove("hidden");
+});
+
   $("#eg-r-yes").addEventListener("click", ()=>{
     $("#eg-r-controls").classList.remove("hidden");
 
