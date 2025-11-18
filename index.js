@@ -341,51 +341,95 @@ document.getElementById("eg-yes").addEventListener("click", (e)=>{
   });
 
   // ===== Players flow =====
-  function resetPlayersFlowUI(){
-    $("#eg-p-controls").classList.add("hidden");
-    $("#eg-p-add-wrap").classList.add("hidden");
-    $("#eg-p-remove-wrap").classList.add("hidden");
-    $("#eg-p-add-names-form").classList.add("hidden");
-    $("#eg-p-add-names-actions").classList.add("hidden");
-    $("#eg-p-add-names-form").innerHTML = "";
+function resetPlayersFlowUI(){
+  const q = document.getElementById("eg-p-question");
+  if (q){ q.style.display = ""; q.classList.remove("hidden"); }
+
+  document.getElementById("eg-p-controls").classList.add("hidden");
+  document.getElementById("eg-p-add-wrap").classList.add("hidden");
+  document.getElementById("eg-p-remove-wrap").classList.add("hidden");
+  document.getElementById("eg-p-add-names-form").classList.add("hidden");
+  document.getElementById("eg-p-add-names-actions").classList.add("hidden");
+  document.getElementById("eg-p-add-names-form").innerHTML = "";
+
+  // إعادة تفعيل زر المتابعة وحقل العدد
+  const cntInput = document.getElementById("eg-p-add-count");
+  const btn      = document.getElementById("eg-p-add-continue");
+  if (cntInput){
+    cntInput.disabled = false;
+    cntInput.classList.remove("opacity-50","cursor-not-allowed");
+    cntInput.value = "";
+  }
+  if (btn){
+    btn.disabled = false;
+    btn.classList.remove("opacity-50","cursor-not-allowed");
   }
 
-  function startPlayersFlow(){
-    const primary = document.getElementById("eg-primary-card");
-    if (primary){
-      primary.classList.add("hidden");
-      primary.style.display = "none";
-    }
-    const pflow = document.getElementById("eg-players-flow");
-    pflow.classList.remove("hidden");
-    pflow.style.display = ""; // إزالة أي إخفاء سابق inline
-  }
+  // إظهار رسالة الحالة وأزرار التحكم عند الفتح التالي
+  const status = document.getElementById("eg-p-status");
+  if (status){ status.classList.remove("hidden"); status.textContent = ""; }
+  document.getElementById("eg-p-add").classList.remove("hidden");
+  document.getElementById("eg-p-remove").classList.remove("hidden");
+}
+
+
+
+
+function startPlayersFlow(){
+  const primary = document.getElementById("eg-primary-card");
+  if (primary){ primary.classList.add("hidden"); primary.style.display = "none"; }
+
+  const pflow = document.getElementById("eg-players-flow");
+  pflow.classList.remove("hidden");
+  pflow.style.display = "";
+
+  // عند كل فتح، نرجّع السؤال ظاهر ونخفي التحكّم
+  resetPlayersFlowUI();
+}
+
 
   // سؤال: هل تريد تغيير عدد اللاعبين؟
-  $("#eg-p-yes").addEventListener("click", ()=>{
-    $("#eg-p-controls").classList.remove("hidden");
+document.getElementById("eg-p-yes").addEventListener("click", ()=>{
+  // أظهر عناصر التحكم
+  document.getElementById("eg-p-controls").classList.remove("hidden");
 
-    const count = S.players.length;
-    const maxTotal = 6, minTotal = 2;
-    const canAdd = count < maxTotal;
-    const canRemove = count > minTotal;
+  // إظهار رسالة الحالة (قد تكون مخفية من خطوة سابقة)
+  const status = document.getElementById("eg-p-status");
+  status.classList.remove("hidden");
 
-    const maxAdd = Math.max(0, maxTotal - count);
-    const maxRemove = Math.max(0, count - minTotal);
+  const count = S.players.length;
+  const maxTotal = 6, minTotal = 2;
+  const canAdd = count < maxTotal;
+  const canRemove = count > minTotal;
 
-    // إشعار الحالة
-    const st = [];
-    st.push(`عدد اللاعبين الحالي: ${count}`);
-    if (canAdd)  st.push(`يمكنك إضافة حتى ${maxAdd} لاعب${maxAdd===1?'':'ين'}.`);
-    if (canRemove) st.push(`يمكنك إزالة حتى ${maxRemove} لاعب${maxRemove===1?'':'ين'}.`);
-    if (!canAdd)  st.push("لا يمكنك الإضافة (وصلت للحد الأقصى 6).");
-    if (!canRemove) st.push("لا يمكنك الإزالة (الحد الأدنى 2).");
-    $("#eg-p-status").textContent = st.join(" | ");
+  const maxAdd = Math.max(0, maxTotal - count);
+  const maxRemove = Math.max(0, count - minTotal);
 
-    // إظهار/إخفاء الأزرار
-    $("#eg-p-add").classList.toggle("hidden", !canAdd);
-    $("#eg-p-remove").classList.toggle("hidden", !canRemove);
-  });
+  const st = [];
+  st.push(`عدد اللاعبين الحالي: ${count}`);
+  if (canAdd)    st.push(`يمكنك إضافة حتى ${maxAdd} لاعب${maxAdd===1?'':'ين'}.`);
+  if (canRemove) st.push(`يمكنك الإزالة حتى ${maxRemove} لاعب${maxRemove===1?'':'ين'}.`);
+  if (!canAdd)   st.push("لا يمكنك الإضافة (الحد الأقصى 6).");
+  if (!canRemove)st.push("لا يمكنك الإزالة (الحد الأدنى 2).");
+  status.textContent = st.join(" | ");
+
+  document.getElementById("eg-p-add").classList.toggle("hidden", !canAdd);
+  document.getElementById("eg-p-remove").classList.toggle("hidden", !canRemove);
+
+  // إخفِ العنوان+الأزرار
+  const q = document.getElementById("eg-p-question");
+  if (q){ q.classList.add("hidden"); q.style.display = "none"; }
+
+  // إخفِ أي أقسام فرعية مفتوحة
+  document.getElementById("eg-p-add-wrap").classList.add("hidden");
+  document.getElementById("eg-p-remove-wrap").classList.add("hidden");
+  document.getElementById("eg-p-add-names-form").classList.add("hidden");
+  document.getElementById("eg-p-add-names-actions").classList.add("hidden");
+  document.getElementById("eg-p-add-names-form").innerHTML = "";
+});
+
+
+
 
   document.getElementById("eg-p-no").addEventListener("click", ()=>{
     // أخفِ بطاقة البداية بالكامل
@@ -426,110 +470,144 @@ document.getElementById("eg-yes").addEventListener("click", (e)=>{
   });
 
   // إضافة لاعبين
-  $("#eg-p-add").addEventListener("click", ()=>{
-    $("#eg-p-add-wrap").classList.remove("hidden");
-    const count = S.players.length;
-    const maxAdd = Math.max(0, 6 - count);
-    $("#eg-p-add-hint").textContent = `(يمكنك إضافة حتى ${maxAdd})`;
-    const inp = $("#eg-p-add-count");
-    inp.value = "";
-    inp.min = "1";
-    inp.max = String(maxAdd);
+document.getElementById("eg-p-add").addEventListener("click", ()=>{
+  // أخفِ جملة الحالة وأزرار التحكم
+  document.getElementById("eg-p-status").classList.add("hidden");
+  document.getElementById("eg-p-add").classList.add("hidden");
+  document.getElementById("eg-p-remove").classList.add("hidden");
+
+  // أظهر قسم "كم لاعب تريد إضافته؟"
+  const count = S.players.length;
+  const maxAdd = Math.max(0, 6 - count);
+  const wrap = document.getElementById("eg-p-add-wrap");
+  wrap.classList.remove("hidden");
+  document.getElementById("eg-p-add-hint").textContent = `(يمكنك إضافة حتى ${maxAdd})`;
+  const inp = document.getElementById("eg-p-add-count");
+  inp.value = "";
+  inp.min = "1";
+  inp.max = String(maxAdd);
+});
+
+
+document.getElementById("eg-p-add-continue").addEventListener("click", ()=>{
+  const cntInput = document.getElementById("eg-p-add-count");
+  const btn      = document.getElementById("eg-p-add-continue");
+  const maxAdd   = parseInt(cntInput.max, 10) || 0;
+  const cnt      = parseInt(cntInput.value || "0", 10);
+
+  if (!cnt || cnt < 1 || cnt > maxAdd) {
+    alert(`العدد غير صالح. الحد الأقصى للإضافة: ${maxAdd}.`);
+    return;
+  }
+
+  // عطّل الإدخال والزر بعد قبول العدد
+  btn.disabled = true;
+  btn.classList.add("opacity-50","cursor-not-allowed");
+  cntInput.disabled = true;
+  cntInput.classList.add("opacity-50","cursor-not-allowed");
+
+  // أظهر حقول أسماء اللاعبين فقط
+  const form = document.getElementById("eg-p-add-names-form");
+  form.innerHTML = "";
+  for (let i = 0; i < cnt; i++) {
+    const div = document.createElement("div");
+    div.innerHTML = `
+      <label class="block mb-1 text-sm">اسم اللاعب الجديد ${i+1}</label>
+      <input type="text" class="w-full border rounded-xl p-2 text-right" id="eg-p-new-${i}" required />
+    `;
+    form.appendChild(div);
+  }
+  document.getElementById("eg-p-add-names-actions").classList.remove("hidden");
+  form.classList.remove("hidden");
+});
+
+
+
+  // $("#eg-p-add-names-cancel").addEventListener("click", ()=>{
+  //   $("#eg-p-add-names-actions").classList.add("hidden");
+  //   $("#eg-p-add-names-form").classList.add("hidden");
+  //   $("#eg-p-add-names-form").innerHTML = "";
+  // });
+
+document.getElementById("eg-p-add-names-submit").addEventListener("click", ()=>{
+  const inputs = Array.from(document.querySelectorAll("#eg-p-add-names-form input"));
+  const newNames = inputs.map(i=>i.value.trim()).filter(Boolean);
+  if (newNames.length !== inputs.length) return alert("أدخل اسمًا لكل لاعب جديد.");
+  const current = new Set(S.players.map(p=>p.name));
+  if (newNames.some(n=>current.has(n))) return alert("هناك أسماء موجودة مسبقًا.");
+
+  newNames.forEach(n=>{
+    if (!(n in S.summaryTotalPoints)) S.summaryTotalPoints[n] = 0;
+    if (!(n in S.summaryWins)) S.summaryWins[n] = 0;
+    if (!(n in S.summaryGamesPlayed)) S.summaryGamesPlayed[n] = 0;
+    S.players.push({name:n, points:0});
   });
+  saveState();
 
-  $("#eg-p-add-continue").addEventListener("click", ()=>{
-    const cnt = parseInt($("#eg-p-add-count").value||"0",10);
-    const maxAdd = parseInt($("#eg-p-add-count").max,10);
-    if (!cnt || cnt<1 || cnt>maxAdd) return alert(`العدد غير صالح. الحد الأقصى للإضافة: ${maxAdd}.`);
-    // إنشاء حقول الأسماء
-    const form = $("#eg-p-add-names-form");
-    form.innerHTML = "";
-    for (let i=0;i<cnt;i++){
-      const div = document.createElement("div");
-      div.innerHTML = `
-        <label class="block mb-1 text-sm">اسم اللاعب الجديد ${i+1}</label>
-        <input type="text" class="w-full border rounded-xl p-2 text-right" id="eg-p-new-${i}" required />
-      `;
-      form.appendChild(div);
-    }
-    $("#eg-p-add-names-actions").classList.remove("hidden");
-    form.classList.remove("hidden");
-  });
+  // أخفِ بطاقة اللاعبين ثم انتقل للجولات
+  document.getElementById("eg-players-flow").classList.add("hidden");
+  document.getElementById("eg-players-flow").style.display = "none";
+  resetPlayersFlowUI();
+  startRoundsFlow();
+});
 
-  $("#eg-p-add-names-cancel").addEventListener("click", ()=>{
-    $("#eg-p-add-names-actions").classList.add("hidden");
-    $("#eg-p-add-names-form").classList.add("hidden");
-    $("#eg-p-add-names-form").innerHTML = "";
-  });
-
-  $("#eg-p-add-names-submit").addEventListener("click", ()=>{
-    const inputs = Array.from($$("#eg-p-add-names-form input"));
-    const newNames = inputs.map(i=>i.value.trim()).filter(Boolean);
-    if (newNames.length !== inputs.length) return alert("أدخل اسمًا لكل لاعب جديد.");
-    const current = new Set(S.players.map(p=>p.name));
-    if (newNames.some(n=>current.has(n))) return alert("هناك أسماء موجودة مسبقًا.");
-
-    // أضف اللاعبين (مع الحفاظ على ملخصاتهم 0 إن لم تكن موجودة)
-    newNames.forEach(n=>{
-      if (!(n in S.summaryTotalPoints)) S.summaryTotalPoints[n] = 0;
-      if (!(n in S.summaryWins)) S.summaryWins[n] = 0;
-      if (!(n in S.summaryGamesPlayed)) S.summaryGamesPlayed[n] = 0;
-      S.players.push({name:n, points:0});
-    });
-    saveState();
-
-    // بعد الإضافة → انتقل لخطوة الجولات
-    startRoundsFlow();
-  });
 
   // إزالة لاعبين
-  $("#eg-p-remove").addEventListener("click", ()=>{
-    $("#eg-p-remove-wrap").classList.remove("hidden");
-    const form = $("#eg-p-remove-form");
-    form.innerHTML = "";
+document.getElementById("eg-p-remove").addEventListener("click", ()=>{
+  // أخفِ جملة الحالة وأزرار التحكم
+  document.getElementById("eg-p-status").classList.add("hidden");
+  document.getElementById("eg-p-add").classList.add("hidden");
+  document.getElementById("eg-p-remove").classList.add("hidden");
 
-    // أنشئ قائمة بأزرار اختيار للإزالة
-    S.players.forEach((p, idx)=>{
-      const row = document.createElement("div");
-      row.className = "flex items-center gap-2";
-      row.innerHTML = `
-        <input type="checkbox" id="eg-p-rem-${idx}" />
-        <label for="eg-p-rem-${idx}" class="text-sm">${p.name}</label>
-      `;
-      form.appendChild(row);
-    });
+  // أظهر نموذج الإزالة فقط
+  const wrap = document.getElementById("eg-p-remove-wrap");
+  wrap.classList.remove("hidden");
+  const form = document.getElementById("eg-p-remove-form");
+  form.innerHTML = "";
 
-    // منع إزالة أكثر من المسموح (يجب بقاء 2)
-    form.addEventListener("change", ()=>{
-      const checks = Array.from(form.querySelectorAll("input[type='checkbox']"));
-      const checked = checks.filter(c=>c.checked).length;
-      const maxRemove = Math.max(0, S.players.length - 2);
-      if (checked > maxRemove){
-        // ارجع آخر تغيير
-        const last = checks.find(c=>c===document.activeElement) || checks[0];
-        if (last) last.checked = false;
-        alert(`لا يمكن إزالة أكثر من ${maxRemove} لاعبين (يجب أن يبقى على الأقل 2).`);
-      }
-    }, {once:false});
+  S.players.forEach((p, idx)=>{
+    const row = document.createElement("div");
+    row.className = "flex items-center gap-2";
+    row.innerHTML = `
+      <input type="checkbox" id="eg-p-rem-${idx}" />
+      <label for="eg-p-rem-${idx}" class="text-sm">${p.name}</label>
+    `;
+    form.appendChild(row);
   });
 
-  $("#eg-p-remove-save").addEventListener("click", ()=>{
-    const form = $("#eg-p-remove-form");
+  form.onchange = ()=>{
     const checks = Array.from(form.querySelectorAll("input[type='checkbox']"));
-    const toRemoveIdx = checks.map((c,i)=> c.checked ? i : -1).filter(i=>i>=0);
+    const checked = checks.filter(c=>c.checked).length;
     const maxRemove = Math.max(0, S.players.length - 2);
-    if (toRemoveIdx.length > maxRemove){
-      return alert(`لا يمكن إزالة أكثر من ${maxRemove} لاعبين.`);
+    if (checked > maxRemove){
+      // ألغي آخر اختيار
+      const active = document.activeElement;
+      if (active && active.type==="checkbox") active.checked = false;
+      alert(`لا يمكن إزالة أكثر من ${maxRemove} لاعبين (يجب أن يبقى على الأقل 2).`);
     }
-    const remain = S.players.filter((_,i)=> !toRemoveIdx.includes(i));
-    if (remain.length < 2) return alert("يجب أن يبقى على الأقل لاعبان.");
-    // لا نحذف ملخصات اللاعبين المُزالين حتى يبقوا ظاهرين في صفحة الملخص
-    S.players = remain.map(p=>({name:p.name, points:0}));
-    saveState();
+  };
+});
 
-    // بعد الإزالة → انتقل لخطوة الجولات
-    startRoundsFlow();
-  });
+
+document.getElementById("eg-p-remove-save").addEventListener("click", ()=>{
+  const form = document.getElementById("eg-p-remove-form");
+  const checks = Array.from(form.querySelectorAll("input[type='checkbox']"));
+  const toRemoveIdx = checks.map((c,i)=> c.checked ? i : -1).filter(i=>i>=0);
+  const maxRemove = Math.max(0, S.players.length - 2);
+  if (toRemoveIdx.length > maxRemove) return alert(`لا يمكن إزالة أكثر من ${maxRemove} لاعبين.`);
+
+  const remain = S.players.filter((_,i)=> !toRemoveIdx.includes(i));
+  if (remain.length < 2) return alert("يجب أن يبقى على الأقل لاعبان.");
+
+  S.players = remain.map(p=>({name:p.name, points:0}));
+  saveState();
+
+  // أخفِ بطاقة اللاعبين ثم انتقل للجولات
+  document.getElementById("eg-players-flow").classList.add("hidden");
+  document.getElementById("eg-players-flow").style.display = "none";
+  resetPlayersFlowUI();
+  startRoundsFlow();
+});
 
   // ===== Rounds flow =====
   function resetRoundsFlowUI(){
@@ -544,19 +622,6 @@ document.getElementById("eg-yes").addEventListener("click", (e)=>{
     rflow.classList.remove("hidden");
     rflow.style.display = ""; // تأكيد إظهار البطاقة
   }
-
- document.getElementById("eg-r-cancel").addEventListener("click", ()=>{
-  // أخفِ بطاقة تغيير الجولات
-  const rflow = document.getElementById("eg-rounds-flow");
-  rflow.classList.add("hidden");
-  rflow.style.display = "none";
-  resetRoundsFlowUI(); // تنظيف واجهة عناصر الجولات
-
-  // أعد إظهار بطاقة "بدء قيم جديد؟"
-  const primary = document.getElementById("eg-primary-card");
-  primary.style.display = "";
-  primary.classList.remove("hidden");
-});
 
   $("#eg-r-yes").addEventListener("click", ()=>{
     $("#eg-r-controls").classList.remove("hidden");

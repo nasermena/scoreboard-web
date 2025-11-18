@@ -156,29 +156,34 @@
 
   <!-- بطاقة: تغيير عدد اللاعبين (خارج بطاقة السؤال الأساسي) -->
   <div id="eg-players-flow" class="hidden bg-white rounded-2xl shadow p-4 sm:p-6 space-y-3">
+  <div id="eg-p-question" class="space-y-3">
     <h3 class="text-lg font-semibold">هل تريد تغيير عدد اللاعبين؟</h3>
     <div class="flex gap-3 flex-wrap">
       <button id="eg-p-yes" class="px-4 py-2 rounded-xl bg-green-600 text-white">نعم</button>
       <button id="eg-p-no"  class="px-4 py-2 rounded-xl border">لا</button>
-      <button id="eg-p-cancel" class="px-4 py-2 rounded-xl bg-gray-600 text-white">إلغاء</button>
+      <button id="eg-p-cancel" class="px-4 py-2 rounded-xl bg-gray-600 text-white">رجوع</button>
     </div>
+  </div>
+
 
     <div id="eg-p-controls" class="hidden space-y-3">
-      <div id="eg-p-status" class="text-sm text-gray-700"></div>
+      <div id="eg-p-status" class="text-base sm:text-lg font-semibold text-gray-800 bg-gray-100 rounded-xl px-3 py-2"></div>
       <div class="flex gap-3 flex-wrap">
         <button id="eg-p-add" class="px-4 py-2 rounded-xl bg-green-600 text-white hidden">إضافة</button>
         <button id="eg-p-remove" class="px-4 py-2 rounded-xl bg-red-600 text-white hidden">إزالة</button>
       </div>
 
       <div id="eg-p-add-wrap" class="hidden space-y-2">
-        <label class="block text-sm">كم لاعب تريد إضافته؟ <span id="eg-p-add-hint" class="text-gray-500"></span></label>
+        <label class="block text-base sm:text-xl font-semibold text-gray-800">كم لاعب تريد إضافته؟
+          <span id="eg-p-add-hint" class="text-gray-500 text-sm sm:text-base font-normal"></span>
+        </label>
         <input id="eg-p-add-count" type="number" inputmode="numeric" pattern="[0-9]*" class="border rounded-xl p-2 w-32 text-center" min="1" />
         <button id="eg-p-add-continue" class="px-4 py-2 rounded-xl bg-green-600 text-white">متابعة</button>
 
         <form id="eg-p-add-names-form" class="hidden mt-3 space-y-2"></form>
         <div id="eg-p-add-names-actions" class="hidden mt-2 flex gap-3">
-          <button id="eg-p-add-names-submit" type="button" class="px-4 py-2 rounded-xl bg-green-600 text-white">إضافة والبدء</button>
-          <button id="eg-p-add-names-cancel" type="button" class="px-4 py-2 rounded-xl border">إلغاء</button>
+          <button id="eg-p-add-names-submit" type="button" class="px-4 py-2 rounded-xl bg-green-600 text-white">حفظ</button>
+          <!-- <button id="eg-p-add-names-cancel" type="button" class="px-4 py-2 rounded-xl border">إلغاء</button> -->
         </div>
       </div>
 
@@ -196,13 +201,12 @@
     <div class="flex gap-3 flex-wrap">
       <button id="eg-r-yes" class="px-4 py-2 rounded-xl bg-green-600 text-white">نعم</button>
       <button id="eg-r-no"  class="px-4 py-2 rounded-xl border">لا</button>
-      <button id="eg-r-cancel" class="px-4 py-2 rounded-xl bg-gray-600 text-white">إلغاء</button>
 
     </div>
 
     <div id="eg-r-controls" class="hidden space-y-3">
       <div id="eg-r-status" class="text-sm text-gray-700"></div>
-      <div class="flex gap-3 flex-wrap">
+      <div id="eg-p-choice" class="flex gap-3 flex-wrap">
         <button id="eg-r-add" class="px-4 py-2 rounded-xl bg-green-600 text-white hidden">إضافة</button>
         <button id="eg-r-remove" class="px-4 py-2 rounded-xl bg-red-600 text-white hidden">إزالة</button>
       </div>
