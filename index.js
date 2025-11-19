@@ -318,6 +318,10 @@ function renderEndGame(){
 
   // افتح “هل تريد بدء قيم جديد؟” → نعم
 document.getElementById("eg-yes").addEventListener("click", (e)=>{
+    // رسالة تأكيد قبل البدء في إعداد قيم جديد
+  const ok = confirm("هل أنت متأكد أنك تريد بدء قيم جديد؟ سيتم الانتقال لإعداد القيم الجديدة.");
+  if (!ok) return;
+
   e.preventDefault();
   const primary = document.getElementById("eg-primary-card");
   const pflow   = document.getElementById("eg-players-flow");
@@ -390,6 +394,9 @@ function startPlayersFlow(){
 
   // سؤال: هل تريد تغيير عدد اللاعبين؟
 document.getElementById("eg-p-yes").addEventListener("click", ()=>{
+  const ok = confirm("هل أنت متأكد أنك تريد تغيير عدد اللاعبين؟");
+  if (!ok) return;
+  
   // أظهر عناصر التحكم
   document.getElementById("eg-p-controls").classList.remove("hidden");
 
@@ -544,6 +551,9 @@ document.getElementById("eg-p-add-names-submit").addEventListener("click", ()=>{
   });
   saveState();
 
+  const addedCount = newNames.length;
+  alert(`تمت إضافة ${addedCount} لاعب${addedCount === 1 ? "" : "ين"} جديد بنجاح.`);
+
   // أخفِ بطاقة اللاعبين ثم انتقل للجولات
   document.getElementById("eg-players-flow").classList.add("hidden");
   document.getElementById("eg-players-flow").style.display = "none";
@@ -602,6 +612,9 @@ document.getElementById("eg-p-remove-save").addEventListener("click", ()=>{
   S.players = remain.map(p=>({name:p.name, points:0}));
   saveState();
 
+  const removedCount = toRemoveIdx.length;
+  alert(`تمت إزالة ${removedCount} لاعب${removedCount === 1 ? "" : "ين"} بنجاح.`);
+  
   // أخفِ بطاقة اللاعبين ثم انتقل للجولات
   document.getElementById("eg-players-flow").classList.add("hidden");
   document.getElementById("eg-players-flow").style.display = "none";
@@ -667,7 +680,9 @@ document.getElementById("eg-p-remove-save").addEventListener("click", ()=>{
 
   // عند الضغط على "نعم" في سؤال "هل تريد تغيير عدد الجولات؟"
   $("#eg-r-yes").addEventListener("click", ()=>{
-
+    const ok = confirm("هل أنت متأكد أنك تريد تغيير عدد الجولات؟");
+    if (!ok) return;
+    
     // إخفاء السؤال وخياراته
     const q = document.getElementById("eg-r-question");
     if (q){
@@ -710,6 +725,7 @@ document.getElementById("eg-p-remove-save").addEventListener("click", ()=>{
 
     S.totalRounds = v;
     saveState();
+    alert(`تم تحديث عدد الجولات من ${cur} إلى ${v} بنجاح.`);
 
     // إخفاء واجهة الإدخال (العدد + زر الحفظ)
     $("#eg-r-add-wrap").classList.add("hidden");
@@ -750,6 +766,7 @@ document.getElementById("eg-p-remove-save").addEventListener("click", ()=>{
 
     S.totalRounds = v;
     saveState();
+    alert(`تم تحديث عدد الجولات من ${cur} إلى ${v} بنجاح.`);
 
     // إخفاء واجهة الإدخال (العدد + زر الحفظ)
     $("#eg-r-remove-wrap").classList.add("hidden");
