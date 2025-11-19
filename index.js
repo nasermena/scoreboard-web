@@ -231,7 +231,7 @@
         tr.className = (idx%2 ? "odd":"even");
         tr.innerHTML = `
           <td class="p-2 border text-right">${p.name}</td>
-          <td class="p-2 border text-center"><input type="number" class="border rounded-xl p-2 w-24 text-center" id="ri-score-${idx}" value="0" inputmode="numeric"  pattern="[0-9]*"/></td>
+          <td class="p-2 border text-center"><input type="number" class="border rounded-xl p-2 w-24 text-center" id="ri-score-${idx}" min="0" inputmode="numeric"  pattern="[0-9]*"/></td>
         `;
         tbody.appendChild(tr);
       });
@@ -240,6 +240,33 @@
     // Confirm round points
     $("#round-confirm").addEventListener("click", ()=>{
       const addMap = {};
+        let allValid = true;
+        S.players.forEach((p, idx)=>{
+          const input = $("#ri-score-"+idx);
+          const raw = (input.value ?? "").trim();
+
+          // يجب إدخال قيمة لكل لاعب
+          if (raw === "") {
+            allValid = false;
+            return;
+          }
+
+          const v = Number(raw);
+
+          // يجب أن تكون عدداً صحيحاً وأكبر أو يساوي صفر
+          if (!Number.isInteger(v) || v < 0) {
+            allValid = false;
+            return;
+          }
+
+          addMap[p.name] = v;
+        });
+
+        if (!allValid) {
+          alert("الرجاء إدخال عدد صحيح (0 أو أكثر) لكل لاعب قبل تأكيد الجولة.");
+          return;
+        }
+        
       S.players.forEach((p,idx)=>{
         const v = parseInt( ($("#ri-score-"+idx).value||"0"), 10);
         addMap[p.name] = isNaN(v) ? 0 : v;
