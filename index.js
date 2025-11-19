@@ -266,7 +266,7 @@
           alert("الرجاء إدخال عدد صحيح (0 أو أكثر) لكل لاعب قبل تأكيد الجولة.");
           return;
         }
-        
+
       S.players.forEach((p,idx)=>{
         const v = parseInt( ($("#ri-score-"+idx).value||"0"), 10);
         addMap[p.name] = isNaN(v) ? 0 : v;
@@ -738,8 +738,12 @@ document.getElementById("eg-p-remove-save").addEventListener("click", ()=>{
     $("#eg-r-add-wrap").classList.remove("hidden");
     const cur = S.totalRounds;
     const inp = $("#eg-r-add-new");
-    inp.value = "";
-    inp.min = String(cur);
+
+      // ابدأ بقيمة واحدة أكثر من العدد الحالي (مثلاً القديم 2 → يبدأ من 3)
+    const startValue = Math.min(cur + 1, 5);
+
+    inp.value = String(startValue);
+    inp.min = String(startValue);
     inp.max = "5";
     $("#eg-r-add-hint").textContent = `(القديم: ${cur}, الحد الأقصى: 5)`;
   });
@@ -779,9 +783,12 @@ document.getElementById("eg-p-remove-save").addEventListener("click", ()=>{
     $("#eg-r-remove-wrap").classList.remove("hidden");
     const cur = S.totalRounds;
     const inp = $("#eg-r-remove-new");
-    inp.value = "";
+    
+    const startValue = Math.min(cur - 1, 5);
+
+    inp.value = String(startValue);
     inp.min = "1";
-    inp.max = String(cur);
+    inp.max = String(startValue);
     $("#eg-r-remove-hint").textContent = `(القديم: ${cur}, الحد الأدنى: 1)`;
   });
 
