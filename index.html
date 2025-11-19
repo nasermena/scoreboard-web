@@ -197,35 +197,49 @@
 
   <!-- بطاقة: تغيير عدد الجولات (خارج بطاقة السؤال الأساسي) -->
   <div id="eg-rounds-flow" class="hidden bg-white rounded-2xl shadow p-4 sm:p-6 space-y-3">
-    <h3 class="text-lg font-semibold">هل تريد تغيير عدد الجولات؟</h3>
-    <div class="flex gap-3 flex-wrap">
-      <button id="eg-r-yes" class="px-4 py-2 rounded-xl bg-green-600 text-white">نعم</button>
-      <button id="eg-r-no"  class="px-4 py-2 rounded-xl border">لا</button>
-
+    <div id="eg-r-question" class="space-y-3">
+      <h3 class="text-lg font-semibold">هل تريد تغيير عدد الجولات؟</h3>
+      <div class="flex gap-3 flex-wrap">
+        <button id="eg-r-yes" class="px-4 py-2 rounded-xl bg-green-600 text-white">نعم</button>
+        <button id="eg-r-no"  class="px-4 py-2 rounded-xl border">لا</button>
+      </div>
     </div>
 
     <div id="eg-r-controls" class="hidden space-y-3">
-      <div id="eg-r-status" class="text-sm text-gray-700"></div>
+      <!-- الجملة الكبيرة الواضحة عن الوضع الحالي -->
+      <div id="eg-r-status" class="hidden text-base sm:text-lg font-semibold text-gray-800 bg-gray-100 rounded-xl px-3 py-2"></div>
+
+      <!-- اختيار: إضافة / إزالة -->
       <div id="eg-p-choice" class="flex gap-3 flex-wrap">
         <button id="eg-r-add" class="px-4 py-2 rounded-xl bg-green-600 text-white hidden">إضافة</button>
         <button id="eg-r-remove" class="px-4 py-2 rounded-xl bg-red-600 text-white hidden">إزالة</button>
       </div>
 
+      <!-- واجهة: كم تريد عدد الجولات الجديد؟ (إضافة) -->
       <div id="eg-r-add-wrap" class="hidden space-y-2">
-        <label class="block text-sm">كم تريد عدد الجولات الجديد؟ <span id="eg-r-add-hint" class="text-gray-500"></span></label>
+        <label class="block text-base sm:text-xl font-semibold text-gray-800">
+          كم تريد عدد الجولات الجديد؟
+          <span id="eg-r-add-hint" class="text-gray-500 text-sm sm:text-base font-normal"></span>
+        </label>
         <input id="eg-r-add-new" type="number" inputmode="numeric" pattern="[0-9]*" class="border rounded-xl p-2 w-32 text-center" />
         <button id="eg-r-add-save" class="px-4 py-2 rounded-xl bg-green-600 text-white">حفظ</button>
       </div>
 
+      <!-- واجهة: كم تريد عدد الجولات الجديد؟ (إزالة) -->
       <div id="eg-r-remove-wrap" class="hidden space-y-2">
-        <label class="block text-sm">كم تريد عدد الجولات الجديد؟ <span id="eg-r-remove-hint" class="text-gray-500"></span></label>
+        <label class="block text-base sm:text-xl font-semibold text-gray-800">
+          كم تريد عدد الجولات الجديد؟
+          <span id="eg-r-remove-hint" class="text-gray-500 text-sm sm:text-base font-normal"></span>
+        </label>
         <input id="eg-r-remove-new" type="number" inputmode="numeric" pattern="[0-9]*" class="border rounded-xl p-2 w-32 text-center" />
         <button id="eg-r-remove-save" class="px-4 py-2 rounded-xl bg-red-600 text-white">حفظ</button>
       </div>
     </div>
 
-    <div class="pt-2">
+    <div class="pt-2 flex gap-3 flex-wrap">
       <button id="eg-start-new" class="px-4 py-2 rounded-xl bg-indigo-600 text-white hidden">بدء القيم</button>
+      <!-- زر تعديل عدد الجولات بعد الحفظ -->
+      <button id="eg-r-edit" class="px-4 py-2 rounded-xl bg-gray-600 text-white hidden">تعديل</button>
     </div>
   </div>
 </section>

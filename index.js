@@ -615,43 +615,84 @@ document.getElementById("eg-p-remove-save").addEventListener("click", ()=>{
     $("#eg-r-add-wrap").classList.add("hidden");
     $("#eg-r-remove-wrap").classList.add("hidden");
     $("#eg-start-new").classList.add("hidden");
+    $("#eg-r-edit").classList.add("hidden");
+    $("#eg-r-status").classList.add("hidden");
+
+    // إعادة إظهار أزرار (إضافة/إزالة) في الفتح التالي
+    $("#eg-r-add").classList.remove("hidden");
+    $("#eg-r-remove").classList.remove("hidden");
+
+    // تفريغ الحقول
+    const addInput = $("#eg-r-add-new");
+    const remInput = $("#eg-r-remove-new");
+    if (addInput) addInput.value = "";
+    if (remInput) remInput.value = "";
   }
 
   function startRoundsFlow(){
     const rflow = document.getElementById("eg-rounds-flow");
     rflow.classList.remove("hidden");
     rflow.style.display = ""; // تأكيد إظهار البطاقة
+
+    resetRoundsFlowUI();
+
+    // إظهار سؤال "هل تريد تغيير عدد الجولات؟" في البداية
+    const q = document.getElementById("eg-r-question");
+    if (q){
+      q.classList.remove("hidden");
+      q.style.display = "";
+    }
   }
 
-  $("#eg-r-yes").addEventListener("click", ()=>{
-    $("#eg-r-controls").classList.remove("hidden");
-
+  // دالة تبني الجملة الكبيرة عن الوضع الحالي وتتحكم في ظهور أزرار إضافة/إزالة
+  function buildRoundsStatus(){
     const n = S.totalRounds;
     const maxTotal = 5, minTotal = 1;
     const canAdd = n < maxTotal;
     const canRemove = n > minTotal;
 
-    // رسائل الحالة
     const st = [];
     st.push(`عدد الجولات الحالي: ${n}`);
-    if (canAdd)   st.push(`يمكنك الزيادة حتى ${maxTotal}.`);
-    if (canRemove)st.push(`يمكنك التخفيض حتى ${minTotal}.`);
-    if (!canAdd)  st.push("لا يمكنك الإضافة (وصلت للحد الأقصى 5).");
+    if (canAdd)    st.push(`يمكنك الزيادة حتى ${maxTotal}.`);
+    if (canRemove) st.push(`يمكنك التخفيض حتى ${minTotal}.`);
+    if (!canAdd)   st.push("لا يمكنك الإضافة (وصلت للحد الأقصى 5).");
     if (!canRemove)st.push("لا يمكنك الإزالة (الحد الأدنى 1).");
-    $("#eg-r-status").textContent = st.join(" | ");
 
-    // إظهار الأزرار
+    $("#eg-r-status").textContent = st.join(" | ");
+    $("#eg-r-status").classList.remove("hidden");
+
     $("#eg-r-add").classList.toggle("hidden", !canAdd);
     $("#eg-r-remove").classList.toggle("hidden", !canRemove);
+  }
+
+  // عند الضغط على "نعم" في سؤال "هل تريد تغيير عدد الجولات؟"
+  $("#eg-r-yes").addEventListener("click", ()=>{
+
+    // إخفاء السؤال وخياراته
+    const q = document.getElementById("eg-r-question");
+    if (q){
+      q.classList.add("hidden");
+      q.style.display = "none";
+    }
+
+    // إظهار منطقة التحكم فقط: الجملة الكبيرة + أزرار إضافة/إزالة
+    $("#eg-r-controls").classList.remove("hidden");
+    buildRoundsStatus();
   });
 
+  // عند الضغط على "لا" → مباشرة بدء قيم جديدة بدون تغيير الجولات
   $("#eg-r-no").addEventListener("click", ()=>{
-    // بدون تغيير الجولات → ابدأ القيم الجديدة مباشرة
     finalizeStartNewGame();
   });
 
-  // إضافة جولات: ضع العدد الجديد (>= القديم وبحده الأقصى 5)
+  // الضغط على زر "إضافة" بعد ظهور الجملة الكبيرة
   $("#eg-r-add").addEventListener("click", ()=>{
+    // إخفاء الجملة الكبيرة وأزرار إضافة/إزالة
+    $("#eg-r-status").classList.add("hidden");
+    $("#eg-r-add").classList.add("hidden");
+    $("#eg-r-remove").classList.add("hidden");
+
+    // إظهار واجهة "كم تريد عدد الجولات الجديد؟ (القديم: .. ، الحد الأقصى: 5)"
     $("#eg-r-add-wrap").classList.remove("hidden");
     const cur = S.totalRounds;
     const inp = $("#eg-r-add-new");
@@ -661,17 +702,37 @@ document.getElementById("eg-p-remove-save").addEventListener("click", ()=>{
     $("#eg-r-add-hint").textContent = `(القديم: ${cur}, الحد الأقصى: 5)`;
   });
 
+  // حفظ العدد الجديد في حالة "إضافة"
   $("#eg-r-add-save").addEventListener("click", ()=>{
     const cur = S.totalRounds;
     const v = parseInt($("#eg-r-add-new").value||"0",10);
     if (!v || v < cur || v > 5) return alert(`يجب أن يكون العدد الجديد بين ${cur} و 5.`);
+
     S.totalRounds = v;
     saveState();
+
+    // إخفاء واجهة الإدخال (العدد + زر الحفظ)
+    $("#eg-r-add-wrap").classList.add("hidden");
+
+    // إظهار جملة توضح العدد الجديد بشكل كبير وواضح
+    $("#eg-r-status").textContent = `عدد الجولات الجديد: ${S.totalRounds} (الحد الأدنى 1، الحد الأقصى 5).`;
+    $("#eg-r-status").classList.remove("hidden");
+
+    // إخفاء أزرار الإضافة/الإزالة، وإظهار "بدء القيم" + "تعديل"
+    $("#eg-r-add").classList.add("hidden");
+    $("#eg-r-remove").classList.add("hidden");
     $("#eg-start-new").classList.remove("hidden");
+    $("#eg-r-edit").classList.remove("hidden");
   });
 
-  // إزالة جولات: ضع العدد الجديد (<= القديم وبحده الأدنى 1)
+  // الضغط على زر "إزالة" بعد ظهور الجملة الكبيرة
   $("#eg-r-remove").addEventListener("click", ()=>{
+    // إخفاء الجملة الكبيرة وأزرار إضافة/إزالة
+    $("#eg-r-status").classList.add("hidden");
+    $("#eg-r-add").classList.add("hidden");
+    $("#eg-r-remove").classList.add("hidden");
+
+    // إظهار واجهة "كم تريد عدد الجولات الجديد؟ (القديم: .. ، الحد الأدنى: 1)"
     $("#eg-r-remove-wrap").classList.remove("hidden");
     const cur = S.totalRounds;
     const inp = $("#eg-r-remove-new");
@@ -681,13 +742,48 @@ document.getElementById("eg-p-remove-save").addEventListener("click", ()=>{
     $("#eg-r-remove-hint").textContent = `(القديم: ${cur}, الحد الأدنى: 1)`;
   });
 
+  // حفظ العدد الجديد في حالة "إزالة"
   $("#eg-r-remove-save").addEventListener("click", ()=>{
     const cur = S.totalRounds;
     const v = parseInt($("#eg-r-remove-new").value||"0",10);
     if (!v || v > cur || v < 1) return alert(`يجب أن يكون العدد الجديد بين 1 و ${cur}.`);
+
     S.totalRounds = v;
     saveState();
+
+    // إخفاء واجهة الإدخال (العدد + زر الحفظ)
+    $("#eg-r-remove-wrap").classList.add("hidden");
+
+    // إظهار جملة توضح العدد الجديد بشكل كبير وواضح
+    $("#eg-r-status").textContent = `عدد الجولات الجديد: ${S.totalRounds} (الحد الأدنى 1، الحد الأقصى 5).`;
+    $("#eg-r-status").classList.remove("hidden");
+
+    // إخفاء أزرار الإضافة/الإزالة، وإظهار "بدء القيم" + "تعديل"
+    $("#eg-r-add").classList.add("hidden");
+    $("#eg-r-remove").classList.add("hidden");
     $("#eg-start-new").classList.remove("hidden");
+    $("#eg-r-edit").classList.remove("hidden");
+  });
+
+  // زر "تعديل" بجانب "بدء القيم" بعد الحفظ
+  $("#eg-r-edit").addEventListener("click", ()=>{
+    // إخفاء أزرار بدء القيم وتعديل، وإرجاع واجهة التحكم لتعديل العدد مرة أخرى
+    $("#eg-start-new").classList.add("hidden");
+    $("#eg-r-edit").classList.add("hidden");
+
+    // إعادة إظهار منطقة التحكم
+    $("#eg-r-controls").classList.remove("hidden");
+
+    // إخفاء واجهات الإدخال، وتفريغها
+    $("#eg-r-add-wrap").classList.add("hidden");
+    $("#eg-r-remove-wrap").classList.add("hidden");
+    const addInput = $("#eg-r-add-new");
+    const remInput = $("#eg-r-remove-new");
+    if (addInput) addInput.value = "";
+    if (remInput) remInput.value = "";
+
+    // إعادة بناء الجملة الكبيرة + أزرار الإضافة/الإزالة بناءً على العدد الحالي
+    buildRoundsStatus();
   });
 
   // بدء القيم الجديدة بعد الانتهاء من الخطوات
