@@ -125,7 +125,7 @@
           <span class="text-sm sm:text-base font-semibold">جولة دبل؟</span>
         </label>
       </div>
-      
+
       <div class="mt-4 flex gap-3">
         <button id="round-confirm" class="px-4 py-2 rounded-xl bg-green-600 text-white">تأكيد</button>
         <button data-back-to="page-scoreboard" class="btn-back px-4 py-2 rounded-xl border">إلغاء</button>
@@ -138,6 +138,21 @@
   <div class="bg-white rounded-2xl shadow p-4 sm:p-6">
     <h2 class="text-2xl font-bold">انتهاء القيم #<span id="eg-index"></span></h2>
   </div>
+  
+    <div class="bg-white rounded-2xl shadow p-4 sm:p-6">
+    <h3 class="text-lg font-semibold mb-3">نقاط كل جولة لكل لاعب</h3>
+    <div class="overflow-auto">
+      <table class="w-full border-collapse table-fixed text-xs sm:text-sm">
+        <thead>
+          <tr id="eg-rounds-head-row" class="bg-gray-100 text-xs sm:text-sm">
+            <th class="border px-2 py-2 sm:px-3 sm:py-2">الجولة/اللاعب</th>
+          </tr>
+        </thead>
+        <tbody id="eg-rounds-body"></tbody>
+      </table>
+    </div>
+  </div>
+
   <div class="bg-white rounded-2xl shadow p-4 sm:p-6">
     <h3 class="text-lg font-semibold mb-3">الترتيب (الأقل → الأكثر)</h3>
     <div class="overflow-auto">

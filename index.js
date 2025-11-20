@@ -326,6 +326,37 @@
 function renderEndGame(){
   // تحديث رقم القيم وعرض ترتيب النهاية (الأقل → الأكثر)
   document.getElementById("eg-index").textContent = S.gameIndex;
+  // جدول "نقاط كل جولة لكل لاعب"
+  const headRow = document.getElementById("eg-rounds-head-row");
+  // امسح أعمدة اللاعبين القديمة (اترك أول th كما هو)
+  while (headRow.children.length > 1) {
+    headRow.removeChild(headRow.lastElementChild);
+  }
+
+  // أضف th لكل لاعب
+  S.players.forEach(p => {
+    const th = document.createElement("th");
+    th.className = "border px-2 py-2 sm:px-3 sm:py-2 text-center";
+    th.textContent = p.name;
+    headRow.appendChild(th);
+  });
+
+  // جسم جدول الجولات
+  const roundsBody = document.getElementById("eg-rounds-body");
+  roundsBody.innerHTML = "";
+  S.roundHistory.forEach((roundMap, idx) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td class="border px-2 py-2 sm:px-3 sm:py-2 text-center">${idx + 1}</td>`;
+    S.players.forEach(p => {
+      const td = document.createElement("td");
+      td.className = "border px-2 py-2 sm:px-3 sm:py-2 text-center";
+      td.textContent = roundMap[p.name] ?? 0;
+      tr.appendChild(td);
+    });
+    roundsBody.appendChild(tr);
+  });
+  colorizeRows(roundsBody);
+
   const body = document.getElementById("eg-rank-body");
   body.innerHTML = "";
   const sorted = sortPointsAsc(playersMap());
