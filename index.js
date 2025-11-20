@@ -208,7 +208,7 @@
       colorizeRows(rankBody);
 
       // round label + button text
-      $("#current-round").textContent = S.currentRound + (S.currentRound===S.totalRounds ? " (الأخيرة)" : "");
+      $("#current-round").textContent = `${S.currentRound} من ${S.totalRounds}`;
       $("#finish-round").textContent = (S.currentRound===S.totalRounds) ? "إنهاء القيم" : "إنهاء الجولة";
     }
 
@@ -235,77 +235,92 @@
         `;
         tbody.appendChild(tr);
       });
+      // تصفير حالة جولة الدبل
+      const dbl = document.getElementById("double-round");
+      if (dbl) dbl.checked = false;
     }
 
     // Confirm round points
-    $("#round-confirm").addEventListener("click", ()=>{
-      const addMap = {};
-        let allValid = true;
-        S.players.forEach((p, idx)=>{
-          const input = $("#ri-score-"+idx);
-          const raw = (input.value ?? "").trim();
+  document.getElementById("round-confirm").addEventListener("click", () => {
+    const addMap = {};
+    let hasError = false;
 
-          // يجب إدخال قيمة لكل لاعب
-          if (raw === "") {
-            allValid = false;
-            return;
-          }
+    S.players.forEach((p, idx) => {
+      if (hasError) return;
 
-          const v = Number(raw);
+      const inp = document.getElementById("ri-score-" + idx);
+      const raw = (inp.value ?? "").trim();
 
-          // يجب أن تكون عدداً صحيحاً وأكبر أو يساوي صفر
-          if (!Number.isInteger(v) || v < 0) {
-            allValid = false;
-            return;
-          }
-
-          addMap[p.name] = v;
-        });
-
-        if (!allValid) {
-          alert("الرجاء إدخال عدد صحيح (0 أو أكثر) لكل لاعب قبل تأكيد الجولة.");
-          return;
-        }
-
-      S.players.forEach((p,idx)=>{
-        const v = parseInt( ($("#ri-score-"+idx).value||"0"), 10);
-        addMap[p.name] = isNaN(v) ? 0 : v;
-      });
-
-      // Update totals
-      S.players = S.players.map(p => ({...p, points: p.points + (addMap[p.name]||0)}));
-      S.roundHistory.push(addMap);
-      saveState();
-
-      // Next step
-      if (S.currentRound < S.totalRounds){
-        S.currentRound += 1;
-        saveState();
-        renderScoreboard();
-        showPage("page-scoreboard");
-      } else {
-        // End game
-        // + games played
-        S.players.forEach(p=>{
-          S.summaryGamesPlayed[p.name] = (S.summaryGamesPlayed[p.name]||0) + 1;
-        });
-        // winners (min points)
-        const sorted = sortPointsAsc(playersMap());
-        const minPts = sorted[0]?.[1] ?? 0;
-        sorted.forEach(([name,pts])=>{
-          if (pts===minPts){
-            S.summaryWins[name] = (S.summaryWins[name]||0) + 1;
-          }
-        });
-        // total points to summary
-        S.players.forEach(p=>{
-          S.summaryTotalPoints[p.name] = (S.summaryTotalPoints[p.name]||0) + p.points;
-        });
-        saveState();
-        renderEndGame();
-        showPage("page-end-game");
+      if (raw === "") {
+        alert("الرجاء إدخال نقاط لكل لاعب، لا يمكن ترك أي حقل فارغ.");
+        inp.focus();
+        hasError = true;
+        return;
       }
+
+      const v = Number(raw);
+      if (!Number.isFinite(v) || !Number.isInteger(v) || v < 0) {
+        alert("النقاط يجب أن تكون أعداداً صحيحة أكبر أو تساوي صفر.");
+        inp.focus();
+        hasError = true;
+        return;
+      }
+
+      addMap[p.name] = v;
     });
+
+    if (hasError) return;
+
+    // التحقق من "جولة دبل؟"
+    const dbl = document.getElementById("double-round");
+    let factor = 1;
+    if (dbl && dbl.checked) {
+      const ok = confirm("هل تريد مضاعفة نقاط هذه الجولة لجميع اللاعبين؟");
+      if (!ok) {
+        // إلغاء المضاعفة/التأكيد → لا نكمل
+        return;
+      }
+      factor = 2;
+    }
+
+    // تطبيق عامل المضاعفة
+    Object.keys(addMap).forEach(name => {
+      addMap[name] = addMap[name] * factor;
+    });
+
+    // تحديث إجمالي النقاط
+    S.players = S.players.map(p => ({
+      ...p,
+      points: p.points + (addMap[p.name] || 0)
+    }));
+    S.roundHistory.push(addMap);
+    saveState();
+
+    // الانتقال للخطوة التالية (كما كان سابقاً)
+    if (S.currentRound < S.totalRounds) {
+      S.currentRound += 1;
+      saveState();
+      renderScoreboard();
+      showPage("page-scoreboard");
+    } else {
+      S.players.forEach(p => {
+        S.summaryGamesPlayed[p.name] = (S.summaryGamesPlayed[p.name] || 0) + 1;
+      });
+      const sorted = sortPointsAsc(playersMap());
+      const minPts = sorted[0]?.[1] ?? 0;
+      sorted.forEach(([name, pts]) => {
+        if (pts === minPts) {
+          S.summaryWins[name] = (S.summaryWins[name] || 0) + 1;
+        }
+      });
+      S.players.forEach(p => {
+        S.summaryTotalPoints[p.name] = (S.summaryTotalPoints[p.name] || 0) + p.points;
+      });
+      saveState();
+      renderEndGame();
+      showPage("page-end-game");
+    }
+  });
 
   // ===== End game rendering =====
 function renderEndGame(){
