@@ -360,9 +360,10 @@ function renderEndGame(){
   const body = document.getElementById("eg-rank-body");
   body.innerHTML = "";
   const sorted = sortPointsAsc(playersMap());
-  sorted.forEach(([name, pts]) => {
+  sorted.forEach(([name, pts], i) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
+      <td class="p-2 border text-center">${i+1}</td>
       <td class="border px-2 py-2 sm:px-3 sm:py-2 text-right">${name}</td>
       <td class="border px-2 py-2 sm:px-3 sm:py-2 text-center">${pts}</td>
     `;
@@ -917,6 +918,7 @@ document.getElementById("eg-p-remove-save").addEventListener("click", ()=>{
       winsRows.forEach((r,i)=>{
         const tr = document.createElement("tr");
         tr.innerHTML = `
+          <td class="p-2 border text-right">${i+1}</td>
           <td class="p-2 border text-right">${r.name}</td>
           <td class="p-2 border text-center">${r.wins}</td>
           <td class="p-2 border text-center">${r.games}</td>
@@ -937,6 +939,7 @@ document.getElementById("eg-p-remove-save").addEventListener("click", ()=>{
       sumRows.forEach((r,i)=>{
         const tr = document.createElement("tr");
         tr.innerHTML = `
+          <td class="p-2 border text-right">${i+1}</td>        
           <td class="p-2 border text-right">${r.name}</td>
           <td class="p-2 border text-center">${r.sum}</td>
           <td class="p-2 border text-center">${r.games}</td>
