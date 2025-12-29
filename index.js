@@ -14,6 +14,11 @@
     });
 
     let S = loadState();
+    let EDIT_ROUND = null; // رقم الجولة (1-based) التي يتم تعديلها، أو null إذا إدخال عادي
+    let RI_DOUBLE_FACTOR = 1;
+    let RI_DOUBLE_CONFIRMED = false;
+    let EDIT_RETURN_PAGE = "page-scoreboard";
+
 
     function saveState() {
       if (!USE_STORAGE) return;
@@ -99,16 +104,6 @@
     // استدعاء أولي
     updateSetupContinue();
 
-    document.getElementById("setup-continue").addEventListener("click", () => {
-      const nPlayers = parseInt(playersInput.value, 10);
-      const nRounds  = parseInt(roundsInput.value, 10);
-
-      if (!isIntInRange(playersInput.value, 2, 6) || !isIntInRange(roundsInput.value, 1, 5)) {
-        alert("أدخل أعداداً صحيحة: عدد اللاعبين بين 2 و6، وعدد الجولات بين 1 و5.");
-        return;
-      }
-    });
-
     // ======= UI Bindings =======
 
     // Setup
@@ -152,11 +147,13 @@
     });
 
     // Back buttons
-    $$(".btn-back").forEach(btn=>{
-      btn.addEventListener("click",()=>{
-        showPage(btn.dataset.backTo);
-      });
+  $$(".btn-back").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      if (btn.dataset.backTo === "page-scoreboard") EDIT_ROUND = null;
+      showPage(btn.dataset.backTo);
     });
+  });
+
 
     // Scoreboard rendering
     function renderScoreboard(){
@@ -210,6 +207,16 @@
       // round label + button text
       $("#current-round").textContent = `${S.currentRound} من ${S.totalRounds}`;
       $("#finish-round").textContent = (S.currentRound===S.totalRounds) ? "إنهاء القيم" : "إنهاء الجولة";
+      const editBtn = $("#edit-prev-round");
+      if (editBtn){
+        const prev = S.currentRound - 1;
+        const canEdit = prev >= 1 && S.roundHistory.length >= prev;
+
+        editBtn.classList.toggle("hidden", !canEdit);
+        editBtn.disabled = !canEdit;
+
+        editBtn.textContent = canEdit ? `تعديل نقاط الجولة ${prev}` : "تعديل نقاط الجولة";
+      }
     }
 
     // Finish round -> go to round input
@@ -217,110 +224,216 @@
       renderRoundInput();
       showPage("page-round-input");
     });
+    const editBtn = $("#edit-prev-round");
+    if (editBtn){
+      editBtn.addEventListener("click", ()=>{
+        EDIT_RETURN_PAGE = "page-scoreboard";
+        const prev = S.currentRound - 1;
+        if (prev < 1 || S.roundHistory.length < prev) return;
+
+        EDIT_ROUND = prev;
+        renderRoundInput();
+        showPage("page-round-input");
+      });
+    }
 
     function renderRoundInput(){
-      $("#round-input-title").textContent = (S.currentRound===S.totalRounds) ? "إدخال نقاط الجولة (الأخيرة)" : "إدخال نقاط الجولة";
-      $("#ri-round").textContent = S.currentRound;
+      const isEdit = (EDIT_ROUND !== null);
+      const targetRound = isEdit ? EDIT_ROUND : S.currentRound;
+
+      $("#round-input-title").textContent = isEdit
+        ? `تعديل نقاط الجولة ${targetRound}`
+        : ((S.currentRound===S.totalRounds) ? "إدخال نقاط الجولة (الأخيرة)" : "إدخال نقاط الجولة");
+
+      $("#ri-round").textContent = targetRound;
       $("#ri-rounds").textContent = S.totalRounds;
       $("#ri-game").textContent = S.gameIndex;
 
+      // زر التأكيد: نص مختلف في وضع التعديل
+      const confirmBtn = document.getElementById("round-confirm");
+      if (confirmBtn) confirmBtn.textContent = isEdit ? "حفظ التعديل" : "تأكيد";
+
       const tbody = $("#round-input-body");
       tbody.innerHTML = "";
+
       S.players.forEach((p, idx)=>{
         const tr = document.createElement("tr");
         tr.className = (idx%2 ? "odd":"even");
         tr.innerHTML = `
           <td class="p-2 border text-right">${p.name}</td>
-          <td class="p-2 border text-center"><input type="number" class="border rounded-xl p-2 w-24 text-center" id="ri-score-${idx}" min="0" inputmode="numeric"  pattern="[0-9]*"/></td>
+          <td class="p-2 border text-center"><input type="number" class="border rounded-xl p-2 w-24 text-center" id="ri-score-${idx}" min="0" inputmode="numeric" pattern="[0-9]*"/></td>
         `;
         tbody.appendChild(tr);
       });
+
       // تصفير حالة جولة الدبل
-      const dbl = document.getElementById("double-round");
-      if (dbl) dbl.checked = false;
+    // تصفير + تفعيل سؤال الدبل عند التحديد
+    const dbl = document.getElementById("double-round");
+    RI_DOUBLE_FACTOR = 1;
+    RI_DOUBLE_CONFIRMED = false;
+
+    if (dbl) {
+      dbl.checked = false;
+
+      // حتى ما تتكرر الأحداث كل مرة تنفتح الصفحة
+      dbl.onchange = () => {
+        if (!dbl.checked) {
+          RI_DOUBLE_FACTOR = 1;
+          RI_DOUBLE_CONFIRMED = false;
+          return;
+        }
+
+        const ok = confirm("هل تريد مضاعفة نقاط هذه الجولة لجميع اللاعبين؟");
+        if (!ok) {
+          dbl.checked = false;
+          RI_DOUBLE_FACTOR = 1;
+          RI_DOUBLE_CONFIRMED = false;
+          return;
+        }
+
+        RI_DOUBLE_FACTOR = 2;
+        RI_DOUBLE_CONFIRMED = true;
+      };
+    }
+
+      // إذا وضع تعديل: عبّي القيم القديمة
+      if (isEdit){
+        const oldMap = S.roundHistory[targetRound - 1] || {};
+        S.players.forEach((p, idx)=>{
+          const inp = document.getElementById("ri-score-" + idx);
+          if (inp) inp.value = String(oldMap[p.name] ?? 0);
+        });
+      }
+
     }
 
     // Confirm round points
-  document.getElementById("round-confirm").addEventListener("click", () => {
-    const addMap = {};
-    let hasError = false;
+    document.getElementById("round-confirm").addEventListener("click", () => {
+      const addMap = {};
+      let hasError = false;
 
-    S.players.forEach((p, idx) => {
+      S.players.forEach((p, idx) => {
+        if (hasError) return;
+
+        const inp = document.getElementById("ri-score-" + idx);
+        const raw = (inp.value ?? "").trim();
+
+        if (raw === "") {
+          alert("الرجاء إدخال نقاط لكل لاعب، لا يمكن ترك أي حقل فارغ.");
+          inp.focus();
+          hasError = true;
+          return;
+        }
+
+        const v = Number(raw);
+        if (!Number.isFinite(v) || !Number.isInteger(v) || v < 0) {
+          alert("النقاط يجب أن تكون أعداداً صحيحة أكبر أو تساوي صفر.");
+          inp.focus();
+          hasError = true;
+          return;
+        }
+
+        addMap[p.name] = v;
+      });
+
       if (hasError) return;
 
-      const inp = document.getElementById("ri-score-" + idx);
-      const raw = (inp.value ?? "").trim();
+// ===== وضع التعديل: لا نزيد الجولة، لكن نسمح بالدبل إذا تم تحديده =====
+if (EDIT_ROUND !== null){
+  const oldMap = S.roundHistory[EDIT_ROUND - 1] || {};
 
-      if (raw === "") {
-        alert("الرجاء إدخال نقاط لكل لاعب، لا يمكن ترك أي حقل فارغ.");
-        inp.focus();
-        hasError = true;
-        return;
-      }
+  // عامل الدبل يأتي من checkbox (تم تأكيده عند التحديد)
+  const factor = RI_DOUBLE_FACTOR || 1;
 
-      const v = Number(raw);
-      if (!Number.isFinite(v) || !Number.isInteger(v) || v < 0) {
-        alert("النقاط يجب أن تكون أعداداً صحيحة أكبر أو تساوي صفر.");
-        inp.focus();
-        hasError = true;
-        return;
-      }
-
-      addMap[p.name] = v;
-    });
-
-    if (hasError) return;
-
-    // التحقق من "جولة دبل؟"
-    const dbl = document.getElementById("double-round");
-    let factor = 1;
-    if (dbl && dbl.checked) {
-      const ok = confirm("هل تريد مضاعفة نقاط هذه الجولة لجميع اللاعبين؟");
-      if (!ok) {
-        // إلغاء المضاعفة/التأكيد → لا نكمل
-        return;
-      }
-      factor = 2;
-    }
-
-    // تطبيق عامل المضاعفة
-    Object.keys(addMap).forEach(name => {
-      addMap[name] = addMap[name] * factor;
-    });
-
-    // تحديث إجمالي النقاط
-    S.players = S.players.map(p => ({
-      ...p,
-      points: p.points + (addMap[p.name] || 0)
-    }));
-    S.roundHistory.push(addMap);
-    saveState();
-
-    // الانتقال للخطوة التالية (كما كان سابقاً)
-    if (S.currentRound < S.totalRounds) {
-      S.currentRound += 1;
-      saveState();
-      renderScoreboard();
-      showPage("page-scoreboard");
-    } else {
-      S.players.forEach(p => {
-        S.summaryGamesPlayed[p.name] = (S.summaryGamesPlayed[p.name] || 0) + 1;
-      });
-      const sorted = sortPointsAsc(playersMap());
-      const minPts = sorted[0]?.[1] ?? 0;
-      sorted.forEach(([name, pts]) => {
-        if (pts === minPts) {
-          S.summaryWins[name] = (S.summaryWins[name] || 0) + 1;
-        }
-      });
-      S.players.forEach(p => {
-        S.summaryTotalPoints[p.name] = (S.summaryTotalPoints[p.name] || 0) + p.points;
-      });
-      saveState();
-      renderEndGame();
-      showPage("page-end-game");
-    }
+  // طبّق عامل المضاعفة على القيم الجديدة
+  Object.keys(addMap).forEach(name => {
+    addMap[name] = addMap[name] * factor;
   });
+
+  // طبّق الفرق على إجمالي نقاط اللاعبين (اطرح القديم + أضف الجديد)
+  S.players = S.players.map(p => ({
+    ...p,
+    points: p.points + ((addMap[p.name] || 0) - (oldMap[p.name] || 0))
+  }));
+
+  // استبدل خريطة الجولة القديمة بالجديدة
+  S.roundHistory[EDIT_ROUND - 1] = addMap;
+
+saveState();
+EDIT_ROUND = null;
+
+const gameFinished = (S.roundHistory.length === S.totalRounds) && (S.currentRound === S.totalRounds);
+
+if (EDIT_RETURN_PAGE === "page-end-game" && gameFinished) {
+  renderEndGame();
+  showPage("page-end-game");
+} else {
+  renderScoreboard();
+  showPage("page-scoreboard");
+}
+
+// مهم جداً: رجّعها للوضع الطبيعي حتى ما “تعلق” على النهاية
+EDIT_RETURN_PAGE = "page-scoreboard";
+return;
+}
+
+
+      // ===== إدخال عادي: جولة دبل + تنبيه الجولة 4 =====
+      const dbl = document.getElementById("double-round");
+      let factor = 1;
+
+      // التنبيه فقط إذا كانت الجولة الحالية هي 4 ولم يتم تحديد الدبل
+if (S.currentRound === 4 && dbl && !dbl.checked) {
+  const wantDouble = confirm("تنبيه: الجولة 4 هي جولة دبل. هل تريد مضاعفة نقاط هذه الجولة؟");
+  if (wantDouble){
+    factor = 2;
+    dbl.checked = true;
+    RI_DOUBLE_FACTOR = 2;
+    RI_DOUBLE_CONFIRMED = true;
+  }
+} else if (dbl && dbl.checked) {
+  // ما في confirm هون (لأنه صار عند تحديد الـ checkbox)
+  factor = RI_DOUBLE_FACTOR || 2;
+}
+
+      // تطبيق عامل المضاعفة
+      Object.keys(addMap).forEach(name => {
+        addMap[name] = addMap[name] * factor;
+      });
+
+      // تحديث إجمالي النقاط
+      S.players = S.players.map(p => ({
+        ...p,
+        points: p.points + (addMap[p.name] || 0)
+      }));
+      S.roundHistory.push(addMap);
+      saveState();
+
+      // الانتقال للخطوة التالية (كما كان سابقاً)
+      if (S.currentRound < S.totalRounds) {
+        S.currentRound += 1;
+        saveState();
+        renderScoreboard();
+        showPage("page-scoreboard");
+      } else {
+        S.players.forEach(p => {
+          S.summaryGamesPlayed[p.name] = (S.summaryGamesPlayed[p.name] || 0) + 1;
+        });
+        const sorted = sortPointsAsc(playersMap());
+        const minPts = sorted[0]?.[1] ?? 0;
+        sorted.forEach(([name, pts]) => {
+          if (pts === minPts) {
+            S.summaryWins[name] = (S.summaryWins[name] || 0) + 1;
+          }
+        });
+        S.players.forEach(p => {
+          S.summaryTotalPoints[p.name] = (S.summaryTotalPoints[p.name] || 0) + p.points;
+        });
+        saveState();
+        renderEndGame();
+        showPage("page-end-game");
+      }
+    });
 
   // ===== End game rendering =====
 function renderEndGame(){
@@ -384,6 +497,14 @@ function renderEndGame(){
   roundsFlow.classList.add("hidden");
   roundsFlow.style.display = "none";
 
+  const egEdit = document.getElementById("eg-edit-last-round");
+  if (egEdit) {
+    const can = S.roundHistory.length > 0;
+    egEdit.classList.toggle("hidden", !can);
+    if (can) egEdit.textContent = `تعديل نقاط الجولة ${S.roundHistory.length}`;
+  }
+
+
   // تصفير واجهات التحكم الداخلية
   resetPlayersFlowUI();
   resetRoundsFlowUI();
@@ -417,6 +538,27 @@ document.getElementById("eg-yes").addEventListener("click", (e)=>{
     renderSummary();
     showPage("page-summary");
   });
+
+const egEditBtn = document.getElementById("eg-edit-last-round");
+if (egEditBtn) {
+  egEditBtn.addEventListener("click", () => {
+    if (!S.roundHistory.length) return;
+
+    EDIT_RETURN_PAGE = "page-end-game";
+    EDIT_ROUND = S.roundHistory.length; // آخر جولة مسجلة فعليًا
+
+    renderRoundInput();
+
+    const oldMap = S.roundHistory[EDIT_ROUND - 1] || {};
+    S.players.forEach((p, idx) => {
+      const inp = document.getElementById("ri-score-" + idx);
+      if (inp) inp.value = String(oldMap[p.name] ?? 0);
+    });
+
+    showPage("page-round-input");
+  });
+}
+
 
   // ===== Players flow =====
 function resetPlayersFlowUI(){
@@ -534,15 +676,6 @@ document.getElementById("eg-p-yes").addEventListener("click", ()=>{
 
   document.getElementById("eg-p-cancel").addEventListener("click", ()=>{
     document.getElementById("eg-players-flow").classList.add("hidden");
-    resetPlayersFlowUI();
-
-    const card = document.getElementById("eg-primary-card");
-    card.style.display = "";                 // إزالة inline style
-    card.classList.remove("hidden");
-  });
-
-    document.getElementById("eg-p-cancel").addEventListener("click", ()=>{
-    document.getElementById("eg-rounds-flow").classList.add("hidden");
     resetPlayersFlowUI();
 
     const card = document.getElementById("eg-primary-card");
