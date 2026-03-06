@@ -1,331 +1,1326 @@
-<!doctype html>
-<html lang="ar" dir="rtl">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>نقاط سكرو</title>
-  <link rel="icon" href="./Screw.ico">
-  <!-- Tailwind via CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-
-  @media (max-width: 420px){
-    th, td { padding: 6px !important; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ScoreKeeper</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: #2a2a3d;
+    --accent: #e8ff47;
+    --accent2: #ff6b35;
+    --accent3: #7c3aed;
+    --text: #f0f0f8;
+    --muted: #6b6b8a;
+    --danger: #ff4444;
+    --success: #44ff88;
+    --gold: #ffd700;
   }
 
-    :root{
-      --leader:#E6F4EA; /* أخضر فاتح */
-      --last:#FDECEA;   /* أحمر فاتح */
-      --odd:#FAFAFA;
-      --even:#FFFFFF;
-    }
-    tr.leader { background: var(--leader); }
-    tr.last   { background: var(--last); }
-    tr.odd    { background: var(--odd); }
-    tr.even   { background: var(--even); }
-  </style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 10%, rgba(124,58,237,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 30% at 80% 80%, rgba(232,255,71,0.06) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px 16px;
+  }
+
+  /* HEADER */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-shadow: 0 0 30px rgba(232,255,71,0.3);
+  }
+
+  .game-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    border-radius: 100px;
+    letter-spacing: 1px;
+  }
+
+  /* SCREENS */
+  .screen { display: none; animation: fadeIn 0.3s ease; }
+  .screen.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* CARD */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 16px;
+  }
+
+  .card-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 2px;
+    color: var(--accent);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .card-title span.icon { font-size: 1.1rem; }
+
+  /* FORM ELEMENTS */
+  .form-group { margin-bottom: 16px; }
+
+  label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 6px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  input[type="text"], input[type="number"] {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+
+  input[type="text"]:focus, input[type="number"]:focus {
+    border-color: var(--accent3);
+    box-shadow: 0 0 0 3px rgba(124,58,237,0.15);
+  }
+
+  input[type="text"].error, input[type="number"].error {
+    border-color: var(--danger);
+  }
+
+  .error-msg {
+    color: var(--danger);
+    font-size: 0.78rem;
+    margin-top: 5px;
+    display: none;
+  }
+
+  .error-msg.show { display: block; }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    outline: none;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #0a0a0f;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: #f0ff60;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(232,255,71,0.25);
+  }
+
+  .btn-secondary {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    border-color: var(--accent3);
+    background: rgba(124,58,237,0.1);
+  }
+
+  .btn-danger {
+    background: rgba(255,68,68,0.12);
+    color: var(--danger);
+    border: 1px solid rgba(255,68,68,0.3);
+  }
+
+  .btn-danger:hover:not(:disabled) {
+    background: rgba(255,68,68,0.2);
+  }
+
+  .btn-accent2 {
+    background: var(--accent2);
+    color: #fff;
+  }
+
+  .btn-accent2:hover:not(:disabled) {
+    background: #ff7d4d;
+    transform: translateY(-1px);
+  }
+
+  .btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  .btn-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+
+  /* NUMBER STEPPER */
+  .stepper {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    width: fit-content;
+  }
+
+  .stepper button {
+    background: none;
+    border: none;
+    color: var(--text);
+    width: 44px;
+    height: 44px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .stepper button:hover:not(:disabled) { background: var(--border); }
+  .stepper button:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  .stepper-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    color: var(--accent);
+    min-width: 48px;
+    text-align: center;
+    letter-spacing: 1px;
+  }
+
+  /* TABLES */
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+  }
+
+  thead tr {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  th {
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 0.72rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 11px 16px;
+    border-bottom: 1px solid rgba(42,42,61,0.5);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--text);
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+
+  tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+  .rank-1 td:first-child { color: var(--gold); font-weight: 700; }
+  .rank-2 td:first-child { color: #c0c0c0; }
+  .rank-3 td:first-child { color: #cd7f32; }
+
+  .leader-row { background: rgba(232,255,71,0.03); }
+
+  /* ROUND INDICATOR */
+  .round-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .round-pip {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: background 0.3s;
+  }
+
+  .round-pip.done { background: var(--accent3); }
+  .round-pip.current { background: var(--accent); box-shadow: 0 0 8px rgba(232,255,71,0.5); }
+
+  .round-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    color: var(--muted);
+    letter-spacing: 2px;
+  }
+
+  /* CHECKBOX TOGGLE */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 16px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .toggle-row:hover { border-color: var(--accent3); }
+
+  .toggle-row input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  .toggle-label {
+    font-size: 0.9rem;
+    color: var(--text);
+    user-select: none;
+  }
+
+  .double-badge {
+    margin-left: auto;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 1.5px;
+    color: var(--accent2);
+    background: rgba(255,107,53,0.12);
+    border: 1px solid rgba(255,107,53,0.3);
+    padding: 3px 10px;
+    border-radius: 100px;
+  }
+
+  /* WARNING BANNER */
+  .warning-banner {
+    background: rgba(255,107,53,0.1);
+    border: 1px solid rgba(255,107,53,0.4);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 0.85rem;
+    color: #ff9966;
+    margin-bottom: 16px;
+    display: none;
+  }
+
+  .warning-banner.show { display: flex; align-items: center; gap: 8px; }
+
+  /* SCORE INPUT GRID */
+  .score-grid {
+    display: grid;
+    gap: 12px;
+  }
+
+  .score-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+
+  .score-player-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .score-row input {
+    width: 90px;
+    text-align: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 1rem;
+  }
+
+  /* WINNER DISPLAY */
+  .winner-card {
+    background: linear-gradient(135deg, rgba(232,255,71,0.08), rgba(124,58,237,0.08));
+    border: 1px solid rgba(232,255,71,0.25);
+    border-radius: 16px;
+    padding: 28px;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  .winner-trophy { font-size: 3rem; margin-bottom: 8px; }
+
+  .winner-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 3px;
+    color: var(--gold);
+  }
+
+  .winner-names {
+    font-size: 1.1rem;
+    color: var(--accent);
+    margin-top: 6px;
+    font-weight: 600;
+  }
+
+  /* PLAYER TAGS */
+  .player-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .player-tag {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    font-size: 0.85rem;
+  }
+
+  .player-tag .remove-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0;
+    transition: color 0.2s;
+  }
+
+  .player-tag .remove-btn:hover { color: var(--danger); }
+
+  /* DIVIDER */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 20px 0;
+  }
+
+  /* SESSION STAT */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .stat-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .stat-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    color: var(--accent);
+    letter-spacing: 2px;
+  }
+
+  .stat-lbl {
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 2px;
+  }
+
+  /* TOAST */
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 20px;
+    font-size: 0.88rem;
+    z-index: 1000;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    max-width: 300px;
+  }
+
+  #toast.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  #toast.success { border-color: rgba(68,255,136,0.4); color: var(--success); }
+  #toast.error { border-color: rgba(255,68,68,0.4); color: var(--danger); }
+  #toast.info { border-color: rgba(232,255,71,0.3); color: var(--accent); }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  .modal-overlay.show { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    max-width: 440px;
+    width: 100%;
+    animation: fadeIn 0.2s ease;
+  }
+
+  .modal-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 2px;
+    color: var(--accent2);
+    margin-bottom: 12px;
+  }
+
+  .modal-body { font-size: 0.9rem; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .card { padding: 18px; }
+    .btn-group { flex-direction: column; }
+    .btn { justify-content: center; }
+  }
+
+  /* SECTION TABS */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--surface2);
+    padding: 4px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+  }
+
+  .tab {
+    flex: 1;
+    padding: 9px;
+    text-align: center;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border-radius: 7px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: var(--muted);
+    transition: all 0.2s;
+  }
+
+  .tab.active {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+</style>
 </head>
-<body class="bg-gray-50 text-gray-900">
-  <div class="max-w-5xl mx-auto p-4 sm:p-6">
-
-    <!-- ========= Setup Page ========= -->
-    <section id="page-setup" class="bg-white rounded-2xl shadow p-4 sm:p-6">
-      <h1 class="text-2xl font-bold mb-4">إعداد القيم</h1>
-      <div class="grid sm:grid-cols-2 gap-4">
-        <div>
-          <label class="block mb-1">أدخل عدد اللاعبين</label>
-          <input id="setup-players" type="number" min="2"  max = "6" inputmode="numeric" pattern="[0-9]*" class="w-full border rounded-xl p-2 text-center" />
-        </div>
-        <div>
-          <label class="block mb-1">أدخل عدد الجولات</label>
-          <input id="setup-rounds" type="number" min="1"  max = "5" inputmode="numeric" pattern="[0-9]*" class="w-full border rounded-xl p-2 text-center" />
-        </div>
-      </div>
-      <div class="mt-4 flex gap-3">
-        <button id="setup-continue" class="px-4 py-2 rounded-xl bg-green-600 text-white" disabled>متابعة</button>
-      </div>
-      <p class="text-gray-500 mt-2">ستدخل أسماء اللاعبين، ثم تظهر لوحة النقاط. الجدول للعرض فقط حتى تضغط «إنهاء الجولة».</p>
-    </section>
-
-    <!-- ========= Names Page ========= -->
-    <section id="page-names" class="hidden bg-white rounded-2xl shadow p-4 sm:p-6">
-      <h2 class="text-xl font-bold mb-2">أدخل أسماء اللاعبين</h2>
-      <div class="text-sm text-gray-600 mb-4">عدد الجولات: <span id="names-rounds-badge" class="px-2 py-1 bg-gray-100 rounded-full"></span></div>
-      <form id="names-form" class="space-y-3"></form>
-      <div class="mt-4 flex gap-3">
-        <button id="names-start" class="px-4 py-2 rounded-xl bg-green-600 text-white">ابدأ القيم</button>
-        <button data-back-to="page-setup" class="btn-back px-4 py-2 rounded-xl border">رجوع</button>
-      </div>
-    </section>
-
-    <!-- ========= Scoreboard Page ========= -->
-    <section id="page-scoreboard" class="hidden space-y-4">
-      <div class="bg-white rounded-2xl shadow p-4 sm:p-6">
-        <div class="flex flex-wrap items-center justify-between gap-3">
-          <h2 class="text-2xl font-bold">لوحة النقاط</h2>
-          <span class="px-3 py-1 rounded-full bg-gray-100 text-gray-700">القيم رقم: <span id="game-index"></span></span>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-2xl shadow p-4 sm:p-6">
-        <h3 class="text-lg font-semibold mb-3">نقاط كل جولة لكل لاعب</h3>
-        <div class="overflow-auto">
-          <table class="w-full border-collapse table-fixed text-xs sm:text-sm">
-            <thead>
-              <tr id="rounds-head-row" class="bg-gray-100 text-sm">
-                <th class="border px-2 py-2 sm:px-3 sm:py-2">الجولة/اللاعب</th>
-              </tr>
-            </thead>
-            <tbody id="rounds-body"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-2xl shadow p-4 sm:p-6">
-        <h3 class="text-lg font-semibold mb-3">الترتيب الحالي</h3>
-        <div class="overflow-auto">
-          <table class="w-full border-collapse table-fixed text-xs sm:text-sm">
-            <thead>
-              <tr class="bg-gray-100 text-xs sm:text-sm">
-                <th class="border px-2 py-2 sm:px-3 sm:py-2">الترتيب</th>
-                <th class="border px-2 py-2 sm:px-3 sm:py-2">اسم اللاعب</th>
-                <th class="border px-2 py-2 sm:px-3 sm:py-2">النقاط</th>
-              </tr>
-            </thead>
-            <tbody id="rank-body"></tbody>
-          </table>
-        </div>
-        <div class="mt-3 flex items-center justify-between">
-          <div class="text-gray-600">الجولة الحالية: <span id="current-round"></span></div>
-          <div class="flex gap-2">
-            <button id="edit-prev-round" class="px-4 py-2 rounded-xl border hidden">
-              تعديل نقاط الجولة
-            </button>
-            <button id="finish-round" class="px-4 py-2 rounded-xl bg-green-600 text-white">
-              إنهاء الجولة
-            </button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ========= Round Input Page ========= -->
-    <section id="page-round-input" class="hidden bg-white rounded-2xl shadow p-4 sm:p-6">
-      <h2 id="round-input-title" class="text-2xl font-bold mb-2">إدخال نقاط الجولة</h2>
-      <div class="text-gray-600 mb-3 text-sm">
-        الجولة رقم <span id="ri-round"></span> من <span id="ri-rounds"></span> | القيم رقم <span id="ri-game"></span>
-      </div>
-      <form id="round-input-form" class="overflow-auto">
-        <table class="w-full border-collapse table-fixed text-xs sm:text-sm">
-          <thead>
-            <tr class="bg-gray-100 text-xs sm:text-sm">
-              <th class="border px-2 py-2 sm:px-3 sm:py-2">اسم اللاعب</th>
-              <th class="border px-2 py-2 sm:px-3 sm:py-2">نقاط هذه الجولة</th>
-            </tr>
-          </thead>
-          <tbody id="round-input-body"></tbody>
-        </table>
-      </form>
-            <!-- جولة دبل -->
-      <div class="mt-4 flex justify-center">
-        <label class="inline-flex items-center gap-2">
-          <input id="double-round" type="checkbox" class="h-4 w-4">
-          <span class="text-sm sm:text-base font-semibold">جولة دبل؟</span>
-        </label>
-      </div>
-
-      <div class="mt-4 flex gap-3">
-        <button id="round-confirm" class="px-4 py-2 rounded-xl bg-green-600 text-white">تأكيد</button>
-        <button data-back-to="page-scoreboard" class="btn-back px-4 py-2 rounded-xl border">إلغاء</button>
-      </div>
-    </section>
-
-    <!-- ========= End Game Page ========= -->
-<section id="page-end-game" class="hidden space-y-4">
-  <!-- بطاقة: انتهاء القيم + جدول الترتيب -->
-  <div class="bg-white rounded-2xl shadow p-4 sm:p-6">
-    <h2 class="text-2xl font-bold">انتهاء القيم #<span id="eg-index"></span></h2>
-  </div>
-  
-    <div class="bg-white rounded-2xl shadow p-4 sm:p-6">
-    <h3 class="text-lg font-semibold mb-3">نقاط كل جولة لكل لاعب</h3>
-    <div class="overflow-auto">
-      <table class="w-full border-collapse table-fixed text-xs sm:text-sm">
-        <thead>
-          <tr id="eg-rounds-head-row" class="bg-gray-100 text-xs sm:text-sm">
-            <th class="border px-2 py-2 sm:px-3 sm:py-2">الجولة/اللاعب</th>
-          </tr>
-        </thead>
-        <tbody id="eg-rounds-body"></tbody>
-      </table>
-    </div>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="logo">ScoreKeeper</div>
+    <div id="gameBadge" class="game-badge" style="display:none"></div>
   </div>
 
-  <div class="bg-white rounded-2xl shadow p-4 sm:p-6">
-    <h3 class="text-lg font-semibold mb-3">الترتيب النهائي</h3>
-    <div class="overflow-auto">
-      <table class="w-full border-collapse table-fixed text-xs sm:text-sm">
-        <thead>
-          <tr class="bg-gray-100 text-xs sm:text-sm">
-            <th class="border px-2 py-2 sm:px-3 sm:py-2">الترتيب</th>
-            <th class="border px-2 py-2 sm:px-3 sm:py-2">اسم اللاعب</th>
-            <th class="border px-2 py-2 sm:px-3 sm:py-2">النقاط</th>
-          </tr>
-        </thead>
-        <tbody id="eg-rank-body"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- بطاقة: السؤال الأساسي -->
-  <div id="eg-primary-card" class="bg-white rounded-2xl shadow p-4 sm:p-6">
-    <h3 class="text-lg font-semibold mb-3">هل تريد بدء قيم جديد؟</h3>
-    <div id="eg-primary" class="flex gap-3 flex-wrap">
-      <button id="eg-yes" class="px-4 py-2 rounded-xl bg-green-600 text-white">نعم</button>
-      <button id="eg-no-summary" class="px-4 py-2 rounded-xl bg-red-600 text-white">لا، اعرض الملخص</button>
-      <button id="eg-edit-last-round" class="px-4 py-2 rounded-xl border hidden"></button>
-    </div>
-  </div>
-
-  <!-- بطاقة: تغيير عدد اللاعبين (خارج بطاقة السؤال الأساسي) -->
-  <div id="eg-players-flow" class="hidden bg-white rounded-2xl shadow p-4 sm:p-6 space-y-3">
-  <div id="eg-p-question" class="space-y-3">
-    <h3 class="text-lg font-semibold">هل تريد تغيير عدد اللاعبين؟</h3>
-    <div class="flex gap-3 flex-wrap">
-      <button id="eg-p-yes" class="px-4 py-2 rounded-xl bg-green-600 text-white">نعم</button>
-      <button id="eg-p-no"  class="px-4 py-2 rounded-xl border">لا</button>
-      <button id="eg-p-cancel" class="px-4 py-2 rounded-xl bg-gray-600 text-white">رجوع</button>
-    </div>
-  </div>
-
-
-    <div id="eg-p-controls" class="hidden space-y-3">
-      <div id="eg-p-status" class="text-base sm:text-lg font-semibold text-gray-800 bg-gray-100 rounded-xl px-3 py-2"></div>
-      <div class="flex gap-3 flex-wrap">
-        <button id="eg-p-add" class="px-4 py-2 rounded-xl bg-green-600 text-white hidden">إضافة</button>
-        <button id="eg-p-remove" class="px-4 py-2 rounded-xl bg-red-600 text-white hidden">إزالة</button>
-      </div>
-
-      <div id="eg-p-add-wrap" class="hidden space-y-2">
-        <label class="block text-base sm:text-xl font-semibold text-gray-800">كم لاعب تريد إضافته؟
-          <span id="eg-p-add-hint" class="text-gray-500 text-sm sm:text-base font-normal"></span>
-        </label>
-        <input id="eg-p-add-count" type="number" inputmode="numeric" pattern="[0-9]*" class="border rounded-xl p-2 w-32 text-center" min="1" />
-        <button id="eg-p-add-continue" class="px-4 py-2 rounded-xl bg-green-600 text-white">متابعة</button>
-
-        <form id="eg-p-add-names-form" class="hidden mt-3 space-y-2"></form>
-        <div id="eg-p-add-names-actions" class="hidden mt-2 flex gap-3">
-          <button id="eg-p-add-names-submit" type="button" class="px-4 py-2 rounded-xl bg-green-600 text-white">حفظ</button>
-          <!-- <button id="eg-p-add-names-cancel" type="button" class="px-4 py-2 rounded-xl border">إلغاء</button> -->
+  <!-- SCREEN 1: SETUP -->
+  <div id="screenSetup" class="screen active">
+    <div class="card">
+      <div class="card-title"><span class="icon">⚙️</span> Game Setup</div>
+      <div class="form-group">
+        <label>Number of Players</label>
+        <div class="stepper">
+          <button id="playersDown" onclick="adjustSetup('players', -1)">−</button>
+          <div class="stepper-val" id="playersVal">2</div>
+          <button id="playersUp" onclick="adjustSetup('players', 1)">+</button>
         </div>
+        <div style="font-size:0.78rem;color:var(--muted);margin-top:6px;">Min 2 · Max 6</div>
       </div>
-
-      <div id="eg-p-remove-wrap" class="hidden space-y-2">
-        <div class="text-sm text-gray-600">اختر اللاعبين المراد إزالتهم (يجب أن يبقى على الأقل لاعبان).</div>
-        <form id="eg-p-remove-form" class="space-y-1"></form>
-        <button id="eg-p-remove-save" class="px-4 py-2 rounded-xl bg-red-600 text-white">حفظ</button>
+      <div class="form-group" style="margin-top:20px;">
+        <label>Rounds per Game</label>
+        <div class="stepper">
+          <button id="roundsDown" onclick="adjustSetup('rounds', -1)">−</button>
+          <div class="stepper-val" id="roundsVal">3</div>
+          <button id="roundsUp" onclick="adjustSetup('rounds', 1)">+</button>
+        </div>
+        <div style="font-size:0.78rem;color:var(--muted);margin-top:6px;">Min 1 · Max 5</div>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="goToNames()">Continue →</button>
       </div>
     </div>
   </div>
 
-  <!-- بطاقة: تغيير عدد الجولات (خارج بطاقة السؤال الأساسي) -->
-  <div id="eg-rounds-flow" class="hidden bg-white rounded-2xl shadow p-4 sm:p-6 space-y-3">
-    <div id="eg-r-question" class="space-y-3">
-      <h3 class="text-lg font-semibold">هل تريد تغيير عدد الجولات؟</h3>
-      <div class="flex gap-3 flex-wrap">
-        <button id="eg-r-yes" class="px-4 py-2 rounded-xl bg-green-600 text-white">نعم</button>
-        <button id="eg-r-no"  class="px-4 py-2 rounded-xl border">لا</button>
+  <!-- SCREEN 2: PLAYER NAMES -->
+  <div id="screenNames" class="screen">
+    <div class="card">
+      <div class="card-title"><span class="icon">👥</span> Register Players</div>
+      <div id="nameFields"></div>
+      <div id="nameError" class="error-msg"></div>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="startGame()">Start Game →</button>
+        <button class="btn btn-secondary" onclick="showScreen('screenSetup')">← Back</button>
       </div>
-    </div>
-
-    <div id="eg-r-controls" class="hidden space-y-3">
-      <!-- الجملة الكبيرة الواضحة عن الوضع الحالي -->
-      <div id="eg-r-status" class="hidden text-base sm:text-lg font-semibold text-gray-800 bg-gray-100 rounded-xl px-3 py-2"></div>
-
-      <!-- اختيار: إضافة / إزالة -->
-      <div id="eg-p-choice" class="flex gap-3 flex-wrap">
-        <button id="eg-r-add" class="px-4 py-2 rounded-xl bg-green-600 text-white hidden">إضافة</button>
-        <button id="eg-r-remove" class="px-4 py-2 rounded-xl bg-red-600 text-white hidden">إزالة</button>
-      </div>
-
-      <!-- واجهة: كم تريد عدد الجولات الجديد؟ (إضافة) -->
-      <div id="eg-r-add-wrap" class="hidden space-y-2">
-        <label class="block text-base sm:text-xl font-semibold text-gray-800">
-          كم تريد عدد الجولات الجديد؟
-          <span id="eg-r-add-hint" class="text-gray-500 text-sm sm:text-base font-normal"></span>
-        </label>
-        <input id="eg-r-add-new" type="number" inputmode="numeric" pattern="[0-9]*" class="border rounded-xl p-2 w-32 text-center" />
-        <button id="eg-r-add-save" class="px-4 py-2 rounded-xl bg-green-600 text-white">حفظ</button>
-      </div>
-
-      <!-- واجهة: كم تريد عدد الجولات الجديد؟ (إزالة) -->
-      <div id="eg-r-remove-wrap" class="hidden space-y-2">
-        <label class="block text-base sm:text-xl font-semibold text-gray-800">
-          كم تريد عدد الجولات الجديد؟
-          <span id="eg-r-remove-hint" class="text-gray-500 text-sm sm:text-base font-normal"></span>
-        </label>
-        <input id="eg-r-remove-new" type="number" inputmode="numeric" pattern="[0-9]*" class="border rounded-xl p-2 w-32 text-center" />
-        <button id="eg-r-remove-save" class="px-4 py-2 rounded-xl bg-red-600 text-white">حفظ</button>
-      </div>
-    </div>
-
-    <div class="pt-2 flex gap-3 flex-wrap">
-      <button id="eg-start-new" class="px-4 py-2 rounded-xl bg-indigo-600 text-white hidden">بدء القيم</button>
-      <!-- زر تعديل عدد الجولات بعد الحفظ -->
-      <button id="eg-r-edit" class="px-4 py-2 rounded-xl bg-gray-600 text-white hidden">تعديل</button>
     </div>
   </div>
-</section>
 
+  <!-- SCREEN 3: SCOREBOARD -->
+  <div id="screenBoard" class="screen">
+    <div id="roundIndicatorWrap"></div>
 
-    <!-- ========= Summary Page ========= -->
-    <section id="page-summary" class="hidden space-y-4">
-      <div class="bg-white rounded-2xl shadow p-4 sm:p-6">
-        <h2 class="text-2xl font-bold">ملخص القيّمات التي لُعبت</h2>
+    <!-- Round History -->
+    <div class="card">
+      <div class="card-title"><span class="icon">📋</span> Round History</div>
+      <div id="historyTable"><div style="color:var(--muted);font-size:0.85rem;">No rounds played yet.</div></div>
+    </div>
+
+    <!-- Rankings -->
+    <div class="card">
+      <div class="card-title"><span class="icon">🏆</span> Current Rankings</div>
+      <div id="rankingTable"></div>
+    </div>
+
+    <!-- Controls -->
+    <div class="card">
+      <div class="card-title"><span class="icon">🎮</span> Round Controls</div>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="showRoundEntry()">End Round →</button>
+        <button id="editRoundBtn" class="btn btn-secondary" onclick="editLastRound()" style="display:none">✏️ Edit Last Round</button>
       </div>
-
-      <div class="bg-white rounded-2xl shadow p-4 sm:p-6">
-        <h3 class="text-lg font-semibold mb-3">ترتيب حسب عدد القيمات الفائزة</h3>
-        <div class="overflow-auto">
-          <table class="w-full border-collapse table-fixed text-xs sm:text-sm">
-            <thead>
-              <tr class="bg-gray-100 text-xs sm:text-sm">
-                <th class="border px-2 py-2 sm:px-3 sm:py-2">الترتيب</th>
-                <th class="border px-2 py-2 sm:px-3 sm:py-2">اسم اللاعب</th>
-                <th class="border px-2 py-2 sm:px-3 sm:py-2">عدد القيمات الفائزة</th>
-                <th class="border px-2 py-2 sm:px-3 sm:py-2">عدد القيمات الملعوبة</th>
-              </tr>
-            </thead>
-            <tbody id="sum-wins-body"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-2xl shadow p-4 sm:p-6">
-        <h3 class="text-lg font-semibold mb-3">ترتيب حسب مجموع النقاط الكلي</h3>
-        <div class="overflow-auto">
-          <table class="w-full border-collapse table-fixed text-xs sm:text-sm">
-            <thead>
-              <tr class="bg-gray-100 text-xs sm:text-sm">
-                <th class="border px-2 py-2 sm:px-3 sm:py-2">الترتيب</th>
-                <th class="border px-2 py-2 sm:px-3 sm:py-2">اسم اللاعب</th>
-                <th class="border px-2 py-2 sm:px-3 sm:py-2">مجموع النقاط الكلي</th>
-                <th class="border px-2 py-2 sm:px-3 sm:py-2">عدد القيمات الملعوبة</th>
-              </tr>
-            </thead>
-            <tbody id="sum-points-body"></tbody>
-          </table>
-        </div>
-
-        <div class="mt-4">
-          <button id="reset-session" class="px-4 py-2 rounded-xl bg-green-600 text-white">بدء جلسة جديدة</button>
-        </div>
-      </div>
-    </section>
-
+    </div>
   </div>
 
-  <script src="index.js"></script>
-  
+  <!-- SCREEN 4: ROUND ENTRY -->
+  <div id="screenRound" class="screen">
+    <div class="card">
+      <div class="card-title" id="roundEntryTitle"><span class="icon">✍️</span> Enter Scores</div>
+
+      <div id="doubleWarning" class="warning-banner">
+        ⚠️ Round 4 is traditionally a double-points round. Double points is pre-selected.
+      </div>
+
+      <label class="toggle-row" for="doubleCheck">
+        <input type="checkbox" id="doubleCheck" onchange="onDoubleChange()">
+        <span class="toggle-label">Double Points Round</span>
+        <span class="double-badge">×2</span>
+      </label>
+
+      <div class="score-grid" id="scoreInputs"></div>
+      <div id="scoreError" class="error-msg"></div>
+
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="confirmRound()">Confirm Round ✓</button>
+        <button class="btn btn-secondary" onclick="showScreen('screenBoard')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 5: GAME COMPLETE -->
+  <div id="screenEnd" class="screen">
+    <div id="winnerCard"></div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">📋</span> Final Round History</div>
+      <div id="finalHistory"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">🏆</span> Final Rankings</div>
+      <div id="finalRanking"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">⚙️</span> Next Game Setup</div>
+
+      <!-- Add/Remove players -->
+      <label style="margin-bottom:10px;display:block;">Adjust Players</label>
+      <div id="nextPlayerTags" class="player-tags" style="margin-bottom:14px;"></div>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:20px;flex-wrap:wrap;">
+        <input type="text" id="addPlayerInput" placeholder="New player name..." style="flex:1;min-width:160px;">
+        <button class="btn btn-secondary" onclick="addNextPlayer()">+ Add</button>
+      </div>
+
+      <!-- Adjust rounds -->
+      <label style="margin-bottom:8px;display:block;">Rounds for Next Game</label>
+      <div class="stepper" style="margin-bottom:20px;">
+        <button onclick="adjustNextRounds(-1)">−</button>
+        <div class="stepper-val" id="nextRoundsVal">3</div>
+        <button onclick="adjustNextRounds(1)">+</button>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="startNewGame()">▶ Start New Game</button>
+        <button class="btn btn-secondary" onclick="showScreen('screenSummary')">📊 Session Summary</button>
+        <button class="btn btn-secondary" onclick="editLastRoundFromEnd()">✏️ Edit Last Round</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 6: SESSION SUMMARY -->
+  <div id="screenSummary" class="screen">
+    <div class="card">
+      <div class="card-title"><span class="icon">📊</span> Session Summary</div>
+      <div id="sessionStats"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">🥇</span> Ranking by Wins</div>
+      <div id="winsTable"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">🔢</span> Ranking by Total Points</div>
+      <div id="pointsTable"></div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="goBackFromSummary()">← Back</button>
+      <button class="btn btn-danger" onclick="confirmReset()">🗑 Reset Session</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div id="modal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle">Confirm</div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="btn-group">
+      <button class="btn btn-primary" id="modalOk" onclick="closeModal(true)">Confirm</button>
+      <button class="btn btn-secondary" onclick="closeModal(false)">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────────────────
+const STORAGE_KEY = 'scorekeeper_v1';
+
+let state = {
+  totalRounds: 3,
+  currentRound: 1,
+  currentGameNumber: 1,
+  isGameOver: false,
+  setupPlayers: 2,
+  setupRounds: 3,
+  players: [],      // { name, totalScore }
+  roundHistory: [], // { round, scores:{name:score}, doubles:bool }
+  sessionSummary: {}, // name -> { wins, totalPoints, gamesPlayed }
+  nextRounds: 3,
+  nextPlayers: [],  // names for next game
+  editingRound: null,
+  lastCompletedScreen: null,
+};
+
+// ─── PERSISTENCE ─────────────────────────────────────────────────────
+function save() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+}
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const s = JSON.parse(raw);
+      state = { ...state, ...s };
+      return true;
+    }
+  } catch(e) {}
+  return false;
+}
+
+// ─── SCREEN MANAGEMENT ───────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ─── TOAST ───────────────────────────────────────────────────────────
+let toastTimer;
+function toast(msg, type='info') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `show ${type}`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.classList.remove('show'); }, 2800);
+}
+
+// ─── MODAL ───────────────────────────────────────────────────────────
+let modalCallback = null;
+function showModal(title, body, cb) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').textContent = body;
+  document.getElementById('modal').classList.add('show');
+  modalCallback = cb;
+}
+
+function closeModal(confirmed) {
+  document.getElementById('modal').classList.remove('show');
+  if (modalCallback) { modalCallback(confirmed); modalCallback = null; }
+}
+
+// ─── SETUP SCREEN ────────────────────────────────────────────────────
+function adjustSetup(field, delta) {
+  if (field === 'players') {
+    state.setupPlayers = Math.min(6, Math.max(2, state.setupPlayers + delta));
+    document.getElementById('playersVal').textContent = state.setupPlayers;
+    document.getElementById('playersDown').disabled = state.setupPlayers <= 2;
+    document.getElementById('playersUp').disabled = state.setupPlayers >= 6;
+  } else {
+    state.setupRounds = Math.min(5, Math.max(1, state.setupRounds + delta));
+    document.getElementById('roundsVal').textContent = state.setupRounds;
+    document.getElementById('roundsDown').disabled = state.setupRounds <= 1;
+    document.getElementById('roundsUp').disabled = state.setupRounds >= 5;
+  }
+}
+
+function initSetupUI() {
+  document.getElementById('playersVal').textContent = state.setupPlayers;
+  document.getElementById('roundsVal').textContent = state.setupRounds;
+  document.getElementById('playersDown').disabled = state.setupPlayers <= 2;
+  document.getElementById('playersUp').disabled = state.setupPlayers >= 6;
+  document.getElementById('roundsDown').disabled = state.setupRounds <= 1;
+  document.getElementById('roundsUp').disabled = state.setupRounds >= 5;
+}
+
+function goToNames() {
+  renderNameFields();
+  showScreen('screenNames');
+}
+
+// ─── NAME ENTRY ───────────────────────────────────────────────────────
+function renderNameFields() {
+  const wrap = document.getElementById('nameFields');
+  wrap.innerHTML = '';
+  for (let i = 0; i < state.setupPlayers; i++) {
+    const existing = state.players[i] ? state.players[i].name : '';
+    wrap.innerHTML += `
+      <div class="form-group">
+        <label>Player ${i+1}</label>
+        <input type="text" id="pname${i}" placeholder="Enter name..." value="${existing}" maxlength="20">
+      </div>`;
+  }
+}
+
+function startGame() {
+  const errEl = document.getElementById('nameError');
+  errEl.classList.remove('show');
+  const names = [];
+  let valid = true;
+
+  for (let i = 0; i < state.setupPlayers; i++) {
+    const val = document.getElementById(`pname${i}`).value.trim();
+    if (!val) { errEl.textContent = `Player ${i+1} name is required.`; errEl.classList.add('show'); valid = false; break; }
+    if (names.includes(val.toLowerCase())) { errEl.textContent = `Duplicate name: "${val}". Names must be unique.`; errEl.classList.add('show'); valid = false; break; }
+    names.push(val.toLowerCase());
+  }
+
+  if (!valid) return;
+
+  // Real names
+  const realNames = [];
+  for (let i = 0; i < state.setupPlayers; i++) {
+    realNames.push(document.getElementById(`pname${i}`).value.trim());
+  }
+
+  // Init session summary for new players
+  realNames.forEach(n => {
+    if (!state.sessionSummary[n]) {
+      state.sessionSummary[n] = { wins: 0, totalPoints: 0, gamesPlayed: 0 };
+    }
+  });
+
+  state.players = realNames.map(n => ({ name: n, totalScore: 0 }));
+  state.totalRounds = state.setupRounds;
+  state.currentRound = 1;
+  state.currentGameNumber = 1;
+  state.roundHistory = [];
+  state.isGameOver = false;
+  state.nextRounds = state.setupRounds;
+  state.nextPlayers = [...realNames];
+
+  save();
+  updateBadge();
+  renderBoard();
+  showScreen('screenBoard');
+  toast('Game started! Good luck 🎮', 'success');
+}
+
+// ─── BOARD ───────────────────────────────────────────────────────────
+function updateBadge() {
+  const b = document.getElementById('gameBadge');
+  if (state.players.length > 0) {
+    b.style.display = '';
+    b.textContent = `GAME ${state.currentGameNumber} · ROUND ${state.currentRound}/${state.totalRounds}`;
+  } else {
+    b.style.display = 'none';
+  }
+}
+
+function renderBoard() {
+  updateBadge();
+  renderRoundIndicator();
+  renderHistory();
+  renderRanking();
+  document.getElementById('editRoundBtn').style.display = state.roundHistory.length > 0 ? '' : 'none';
+}
+
+function renderRoundIndicator() {
+  const wrap = document.getElementById('roundIndicatorWrap');
+  let pips = '';
+  for (let i = 1; i <= state.totalRounds; i++) {
+    let cls = i < state.currentRound ? 'done' : i === state.currentRound ? 'current' : '';
+    pips += `<div class="round-pip ${cls}"></div>`;
+  }
+  wrap.innerHTML = `<div class="round-indicator"><span class="round-label">Round</span>${pips}<span class="round-label">${state.currentRound} / ${state.totalRounds}</span></div>`;
+}
+
+function renderHistory(container='historyTable') {
+  const el = document.getElementById(container);
+  if (!state.roundHistory.length) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:0.85rem;">No rounds played yet.</div>';
+    return;
+  }
+  const names = state.players.map(p => p.name);
+  let html = `<div class="table-wrap"><table><thead><tr><th>Round</th>${names.map(n => `<th>${n}</th>`).join('')}</tr></thead><tbody>`;
+  state.roundHistory.forEach(r => {
+    html += `<tr><td>${r.round}${r.doubles ? ' <span style="color:var(--accent2);font-size:0.7rem;">×2</span>' : ''}</td>${names.map(n => `<td>${r.scores[n] ?? '-'}</td>`).join('')}</tr>`;
+  });
+  html += '</tbody></table></div>';
+  el.innerHTML = html;
+}
+
+function renderRanking(container='rankingTable') {
+  const el = document.getElementById(container);
+  const sorted = [...state.players].sort((a,b) => a.totalScore - b.totalScore);
+  let rank = 1, prevScore = null, html = `<div class="table-wrap"><table><thead><tr><th>Rank</th><th>Player</th><th>Total Score</th></tr></thead><tbody>`;
+  sorted.forEach((p, i) => {
+    if (i > 0 && p.totalScore !== prevScore) rank = i + 1;
+    prevScore = p.totalScore;
+    let rowCls = i === 0 ? 'leader-row' : '';
+    let rankCls = rank <= 3 ? `rank-${rank}` : '';
+    html += `<tr class="${rowCls} ${rankCls}"><td>${rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank}</td><td>${p.name}</td><td>${p.totalScore}</td></tr>`;
+  });
+  html += '</tbody></table></div>';
+  el.innerHTML = html;
+}
+
+// ─── ROUND ENTRY ─────────────────────────────────────────────────────
+let isEditing = false;
+
+function showRoundEntry(editing=false) {
+  isEditing = editing;
+  const rnum = editing ? state.roundHistory.length : state.currentRound;
+  const title = document.getElementById('roundEntryTitle');
+  title.innerHTML = `<span class="icon">${editing ? '✏️' : '✍️'}</span> ${editing ? 'Edit Round' : 'Enter Scores'} — Round ${rnum}`;
+
+  // Double points
+  const doubleCheck = document.getElementById('doubleCheck');
+  const warning = document.getElementById('doubleWarning');
+
+  if (editing) {
+    const last = state.roundHistory[state.roundHistory.length - 1];
+    doubleCheck.checked = last.doubles || false;
+  } else {
+    doubleCheck.checked = rnum === 4;
+  }
+
+  warning.classList.toggle('show', !editing && rnum === 4);
+
+  // Score inputs
+  const grid = document.getElementById('scoreInputs');
+  grid.innerHTML = '';
+  state.players.forEach(p => {
+    let existingVal = '';
+    if (editing) {
+      const last = state.roundHistory[state.roundHistory.length - 1];
+      const raw = last.rawScores ? last.rawScores[p.name] : (last.doubles ? last.scores[p.name] / 2 : last.scores[p.name]);
+      existingVal = raw !== undefined ? raw : '';
+    }
+    grid.innerHTML += `
+      <div class="score-row">
+        <span class="score-player-name">${p.name}</span>
+        <input type="number" id="score_${p.name.replace(/\s/g,'_')}" min="0" placeholder="0" value="${existingVal}">
+      </div>`;
+  });
+
+  document.getElementById('scoreError').classList.remove('show');
+  showScreen('screenRound');
+}
+
+function onDoubleChange() {}
+
+function confirmRound() {
+  const errEl = document.getElementById('scoreError');
+  errEl.classList.remove('show');
+
+  const scores = {};
+  for (const p of state.players) {
+    const id = `score_${p.name.replace(/\s/g,'_')}`;
+    const val = document.getElementById(id).value;
+    if (val === '' || isNaN(val)) {
+      errEl.textContent = `Score for ${p.name} is required and must be a number.`;
+      errEl.classList.add('show');
+      return;
+    }
+    const n = parseInt(val);
+    if (n < 0 || !Number.isInteger(n)) {
+      errEl.textContent = `Score for ${p.name} must be a non-negative integer.`;
+      errEl.classList.add('show');
+      return;
+    }
+    scores[p.name] = n;
+  }
+
+  const isDouble = document.getElementById('doubleCheck').checked;
+
+  if (isEditing) {
+    // Undo last round's scores first
+    const last = state.roundHistory[state.roundHistory.length - 1];
+    state.players.forEach(p => { p.totalScore -= last.scores[p.name]; });
+
+    // Apply new
+    const finalScores = {};
+    const rawScores = {};
+    state.players.forEach(p => {
+      rawScores[p.name] = scores[p.name];
+      finalScores[p.name] = isDouble ? scores[p.name] * 2 : scores[p.name];
+      p.totalScore += finalScores[p.name];
+    });
+
+    state.roundHistory[state.roundHistory.length - 1] = {
+      round: last.round, scores: finalScores, rawScores, doubles: isDouble
+    };
+
+    save();
+    toast('Round updated ✓', 'success');
+
+    if (state.isGameOver) {
+      renderEndScreen();
+      showScreen('screenEnd');
+    } else {
+      renderBoard();
+      showScreen('screenBoard');
+    }
+    return;
+  }
+
+  // New round
+  const finalScores = {};
+  const rawScores = {};
+  state.players.forEach(p => {
+    rawScores[p.name] = scores[p.name];
+    finalScores[p.name] = isDouble ? scores[p.name] * 2 : scores[p.name];
+    p.totalScore += finalScores[p.name];
+  });
+
+  state.roundHistory.push({ round: state.currentRound, scores: finalScores, rawScores, doubles: isDouble });
+
+  if (state.currentRound === state.totalRounds) {
+    // Game over
+    state.isGameOver = true;
+    updateSessionStats();
+    save();
+    renderEndScreen();
+    showScreen('screenEnd');
+    toast('Game complete! 🏆', 'success');
+  } else {
+    state.currentRound++;
+    save();
+    renderBoard();
+    showScreen('screenBoard');
+    toast(`Round ${state.currentRound - 1} recorded ✓`, 'success');
+  }
+}
+
+function editLastRound() {
+  showRoundEntry(true);
+}
+
+function editLastRoundFromEnd() {
+  showRoundEntry(true);
+}
+
+// ─── END OF GAME ─────────────────────────────────────────────────────
+function getWinners() {
+  const minScore = Math.min(...state.players.map(p => p.totalScore));
+  return state.players.filter(p => p.totalScore === minScore);
+}
+
+function updateSessionStats() {
+  const winners = getWinners();
+  state.players.forEach(p => {
+    if (!state.sessionSummary[p.name]) {
+      state.sessionSummary[p.name] = { wins: 0, totalPoints: 0, gamesPlayed: 0 };
+    }
+    state.sessionSummary[p.name].gamesPlayed++;
+    state.sessionSummary[p.name].totalPoints += p.totalScore;
+  });
+  winners.forEach(w => {
+    state.sessionSummary[w.name].wins++;
+  });
+}
+
+function renderEndScreen() {
+  updateBadge();
+  const winners = getWinners();
+  document.getElementById('winnerCard').innerHTML = `
+    <div class="winner-card">
+      <div class="winner-trophy">🏆</div>
+      <div class="winner-title">Game ${state.currentGameNumber} Winner${winners.length > 1 ? 's' : ''}</div>
+      <div class="winner-names">${winners.map(w => w.name).join(' & ')} · ${winners[0].totalScore} pts</div>
+    </div>`;
+
+  renderHistory('finalHistory');
+  renderRanking('finalRanking');
+
+  // Next game setup
+  document.getElementById('nextRoundsVal').textContent = state.nextRounds;
+  renderNextPlayerTags();
+}
+
+function renderNextPlayerTags() {
+  const wrap = document.getElementById('nextPlayerTags');
+  wrap.innerHTML = '';
+  state.nextPlayers.forEach(name => {
+    const canRemove = state.nextPlayers.length > 2;
+    wrap.innerHTML += `
+      <div class="player-tag">
+        <span>${name}</span>
+        ${canRemove ? `<button class="remove-btn" onclick="removeNextPlayer('${name.replace(/'/g,"\\'")}')">×</button>` : ''}
+      </div>`;
+  });
+}
+
+function addNextPlayer() {
+  const inp = document.getElementById('addPlayerInput');
+  const name = inp.value.trim();
+  if (!name) { toast('Enter a name first', 'error'); return; }
+  if (state.nextPlayers.length >= 6) { toast('Maximum 6 players', 'error'); return; }
+  if (state.nextPlayers.map(n=>n.toLowerCase()).includes(name.toLowerCase())) { toast('Name already exists', 'error'); return; }
+  state.nextPlayers.push(name);
+  if (!state.sessionSummary[name]) { state.sessionSummary[name] = { wins: 0, totalPoints: 0, gamesPlayed: 0 }; }
+  inp.value = '';
+  renderNextPlayerTags();
+  save();
+}
+
+function removeNextPlayer(name) {
+  if (state.nextPlayers.length <= 2) { toast('Minimum 2 players', 'error'); return; }
+  state.nextPlayers = state.nextPlayers.filter(n => n !== name);
+  renderNextPlayerTags();
+  save();
+}
+
+function adjustNextRounds(delta) {
+  state.nextRounds = Math.min(5, Math.max(1, state.nextRounds + delta));
+  document.getElementById('nextRoundsVal').textContent = state.nextRounds;
+  save();
+}
+
+function startNewGame() {
+  state.currentGameNumber++;
+  state.totalRounds = state.nextRounds;
+  state.currentRound = 1;
+  state.isGameOver = false;
+
+  // Reset players
+  state.players = state.nextPlayers.map(n => ({ name: n, totalScore: 0 }));
+  state.roundHistory = [];
+
+  save();
+  updateBadge();
+  renderBoard();
+  showScreen('screenBoard');
+  toast(`Game ${state.currentGameNumber} started! 🎮`, 'success');
+}
+
+// ─── SESSION SUMMARY ─────────────────────────────────────────────────
+function renderSummary() {
+  const total = Object.values(state.sessionSummary).reduce((a, v) => a + v.gamesPlayed, 0);
+  const gamesCount = state.currentGameNumber;
+
+  document.getElementById('sessionStats').innerHTML = `
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-val">${gamesCount}</div><div class="stat-lbl">Games Played</div></div>
+      <div class="stat-box"><div class="stat-val">${state.players.length}</div><div class="stat-lbl">Players</div></div>
+      <div class="stat-box"><div class="stat-val">${state.totalRounds}</div><div class="stat-lbl">Rounds/Game</div></div>
+    </div>`;
+
+  // Wins table
+  const byWins = Object.entries(state.sessionSummary).sort((a,b) => b[1].wins - a[1].wins);
+  let wHtml = `<div class="table-wrap"><table><thead><tr><th>Rank</th><th>Player</th><th>Wins</th><th>Games Played</th></tr></thead><tbody>`;
+  byWins.forEach(([name, s], i) => {
+    const rankCls = i < 3 ? `rank-${i+1}` : '';
+    wHtml += `<tr class="${rankCls}"><td>${i+1}</td><td>${name}</td><td>${s.wins}</td><td>${s.gamesPlayed}</td></tr>`;
+  });
+  wHtml += '</tbody></table></div>';
+  document.getElementById('winsTable').innerHTML = wHtml;
+
+  // Points table
+  const byPoints = Object.entries(state.sessionSummary).sort((a,b) => a[1].totalPoints - b[1].totalPoints);
+  let pHtml = `<div class="table-wrap"><table><thead><tr><th>Rank</th><th>Player</th><th>Total Points</th><th>Games Played</th></tr></thead><tbody>`;
+  byPoints.forEach(([name, s], i) => {
+    const rankCls = i < 3 ? `rank-${i+1}` : '';
+    pHtml += `<tr class="${rankCls}"><td>${i+1}</td><td>${name}</td><td>${s.totalPoints}</td><td>${s.gamesPlayed}</td></tr>`;
+  });
+  pHtml += '</tbody></table></div>';
+  document.getElementById('pointsTable').innerHTML = pHtml;
+}
+
+function goBackFromSummary() {
+  if (state.isGameOver) showScreen('screenEnd');
+  else if (state.players.length > 0) showScreen('screenBoard');
+  else showScreen('screenSetup');
+}
+
+// ─── RESET ───────────────────────────────────────────────────────────
+function confirmReset() {
+  showModal('Reset Session?', 'This will clear all players, games, and statistics. This cannot be undone.', (ok) => {
+    if (!ok) return;
+    localStorage.removeItem(STORAGE_KEY);
+    state = {
+      totalRounds: 3, currentRound: 1, currentGameNumber: 1, isGameOver: false,
+      setupPlayers: 2, setupRounds: 3, players: [], roundHistory: [],
+      sessionSummary: {}, nextRounds: 3, nextPlayers: [], editingRound: null,
+    };
+    initSetupUI();
+    document.getElementById('gameBadge').style.display = 'none';
+    showScreen('screenSetup');
+    toast('Session reset', 'info');
+  });
+}
+
+// ─── SUMMARY NAV ─────────────────────────────────────────────────────
+// Override showScreen to render summary when needed
+const _origShow = showScreen;
+window.showScreen = function(id) {
+  if (id === 'screenSummary') renderSummary();
+  _origShow(id);
+};
+
+// ─── INIT ─────────────────────────────────────────────────────────────
+function init() {
+  const restored = load();
+  initSetupUI();
+
+  if (restored && state.players.length > 0) {
+    updateBadge();
+    if (state.isGameOver) {
+      renderEndScreen();
+      showScreen('screenEnd');
+    } else {
+      renderBoard();
+      showScreen('screenBoard');
+    }
+    toast('Session restored 🔄', 'info');
+  }
+}
+
+init();
+</script>
 </body>
 </html>
