@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ScoreKeeper</title>
+<title>Screw Points</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -19,6 +19,77 @@
     --danger: #ff4444;
     --success: #44ff88;
     --gold: #ffd700;
+  }
+
+  [data-theme="light"] {
+    --bg: #f4f4f8;
+    --surface: #ffffff;
+    --surface2: #eeeef5;
+    --border: #d0d0e0;
+    --accent: #6b21a8;
+    --accent2: #ff6b35;
+    --accent3: #7c3aed;
+    --text: #111118;
+    --muted: #7070a0;
+    --danger: #dc2626;
+    --success: #16a34a;
+    --gold: #b45309;
+  }
+
+  [data-theme="light"] body::before {
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 10%, rgba(124,58,237,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 30% at 80% 80%, rgba(107,33,168,0.04) 0%, transparent 50%);
+  }
+
+  [data-theme="light"] .logo {
+    text-shadow: none;
+  }
+
+  [data-theme="light"] .winner-card {
+    background: linear-gradient(135deg, rgba(107,33,168,0.07), rgba(124,58,237,0.06));
+    border-color: rgba(107,33,168,0.2);
+  }
+
+  /* THEME TOGGLE */
+  .theme-toggle {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    width: 52px;
+    height: 28px;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.3s, border-color 0.3s;
+    flex-shrink: 0;
+  }
+
+  .theme-toggle::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--muted);
+    transition: transform 0.3s, background 0.3s;
+  }
+
+  [data-theme="light"] .theme-toggle::after {
+    transform: translateX(24px);
+    background: var(--accent3);
+  }
+
+  .theme-toggle-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .theme-icon {
+    font-size: 1rem;
+    line-height: 1;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -618,8 +689,17 @@
 <body>
 <div class="app">
   <div class="header">
-    <div class="logo">ScoreKeeper</div>
-    <div id="gameBadge" class="game-badge" style="display:none"></div>
+    <div class="logo" style="display:flex;align-items:center;gap:10px;">
+      <img src="Screw.ico" alt="Screw" style="width:36px;height:36px;object-fit:contain;">
+      Screw Points
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div id="gameBadge" class="game-badge" style="display:none"></div>
+      <div class="theme-toggle-wrap">
+        <span class="theme-icon" id="themeIcon">🌙</span>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode"></button>
+      </div>
+    </div>
   </div>
 
   <!-- SCREEN 1: SETUP -->
@@ -685,6 +765,7 @@
       <div class="btn-group">
         <button class="btn btn-primary" onclick="showRoundEntry()">End Round →</button>
         <button id="editRoundBtn" class="btn btn-secondary" onclick="editLastRound()" style="display:none">✏️ Edit Last Round</button>
+        <button class="btn btn-danger" onclick="confirmEndGameEarly()">🏁 End Game</button>
       </div>
     </div>
   </div>
@@ -1144,6 +1225,22 @@ function editLastRoundFromEnd() {
   showRoundEntry(true);
 }
 
+function confirmEndGameEarly() {
+  const roundsDone = state.roundHistory.length;
+  const msg = roundsDone === 0
+    ? 'No rounds have been played yet. Are you sure you want to end the game?'
+    : `Only ${roundsDone} of ${state.totalRounds} rounds played. End the game now and determine a winner based on current scores?`;
+  showModal('End Game Early?', msg, (ok) => {
+    if (!ok) return;
+    state.isGameOver = true;
+    updateSessionStats();
+    save();
+    renderEndScreen();
+    showScreen('screenEnd');
+    toast('Game ended early 🏁', 'info');
+  });
+}
+
 // ─── END OF GAME ─────────────────────────────────────────────────────
 function getWinners() {
   const minScore = Math.min(...state.players.map(p => p.totalScore));
@@ -1302,8 +1399,25 @@ window.showScreen = function(id) {
   _origShow(id);
 };
 
+// ─── THEME ───────────────────────────────────────────────────────────
+function toggleTheme() {
+  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  const newTheme = isDark ? 'light' : 'dark';
+  applyTheme(newTheme);
+  localStorage.setItem('scorekeeper_theme', newTheme);
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme === 'light' ? 'light' : 'dark');
+  document.getElementById('themeIcon').textContent = theme === 'light' ? '☀️' : '🌙';
+}
+
 // ─── INIT ─────────────────────────────────────────────────────────────
 function init() {
+  // Apply saved theme
+  const savedTheme = localStorage.getItem('scorekeeper_theme') || 'dark';
+  applyTheme(savedTheme);
+
   const restored = load();
   initSetupUI();
 
