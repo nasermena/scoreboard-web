@@ -1229,15 +1229,19 @@ function confirmEndGameEarly() {
   const roundsDone = state.roundHistory.length;
   const msg = roundsDone === 0
     ? 'No rounds have been played yet. Are you sure you want to end the game?'
-    : `Only ${roundsDone} of ${state.totalRounds} rounds played. End the game now and determine a winner based on current scores?`;
-  showModal('End Game Early?', msg, (ok) => {
+    : `Only ${roundsDone} of ${state.totalRounds} rounds played. Are you sure you want to end the game?`;
+  showModal('End Game?', msg, (ok) => {
     if (!ok) return;
-    state.isGameOver = true;
-    updateSessionStats();
-    save();
-    renderEndScreen();
-    showScreen('screenEnd');
-    toast('Game ended early 🏁', 'info');
+    localStorage.removeItem(STORAGE_KEY);
+    state = {
+      totalRounds: 3, currentRound: 1, currentGameNumber: 1, isGameOver: false,
+      setupPlayers: 2, setupRounds: 3, players: [], roundHistory: [],
+      sessionSummary: {}, nextRounds: 3, nextPlayers: [], editingRound: null,
+    };
+    initSetupUI();
+    document.getElementById('gameBadge').style.display = 'none';
+    showScreen('screenSetup');
+    toast('Game ended', 'info');
   });
 }
 
